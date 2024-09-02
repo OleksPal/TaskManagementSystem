@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TaskManagementSystem.Models
 {
-    [Index(nameof(Nickname), IsUnique = true)]
+    [Index(nameof(Username), IsUnique = true)]
     [Index(nameof(Email), IsUnique = true)]
     public class User
     {
@@ -11,7 +11,7 @@ namespace TaskManagementSystem.Models
         public Guid Id { get; set; }
 
         [Required]
-        public string Nickname { get; set; }
+        public string Username { get; set; }
 
         [Required]
         public string Email { get; set; }
