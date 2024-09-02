@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Data;
 
@@ -32,6 +31,8 @@ namespace TaskManagementSystem
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.CreateDbIfNotExists();
 
             app.MapControllers();
 
