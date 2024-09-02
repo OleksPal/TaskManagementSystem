@@ -24,5 +24,7 @@ namespace TaskManagementSystem.Models
 
         [Required]
         public DateTime UpdatedAt { get; set; }
+
+        public ICollection<Task> Tasks { get; } = new List<Task>();
     }
 }
