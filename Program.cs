@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TaskManagementSystem.Data;
+
 namespace TaskManagementSystem
 {
     public class Program
@@ -14,6 +17,9 @@ namespace TaskManagementSystem
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<TaskManagementContext>(options => 
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -26,7 +32,6 @@ namespace TaskManagementSystem
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
