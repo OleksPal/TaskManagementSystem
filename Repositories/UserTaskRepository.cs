@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Repositories.Interfaces;
 
 namespace TaskManagementSystem.Repositories
 {

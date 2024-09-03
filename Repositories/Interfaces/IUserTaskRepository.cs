@@ -1,6 +1,6 @@
 ﻿using TaskManagementSystem.Models;
 
-namespace TaskManagementSystem.Repositories
+namespace TaskManagementSystem.Repositories.Interfaces
 {
     public interface IUserTaskRepository
     {
