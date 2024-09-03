@@ -29,7 +29,6 @@ namespace TaskManagementSystem
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
 
             app.CreateDbIfNotExists();
