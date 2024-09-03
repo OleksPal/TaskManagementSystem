@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Repositories;
 using TaskManagementSystem.Repositories.Interfaces;
+using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem
 {
@@ -12,7 +13,8 @@ namespace TaskManagementSystem
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>();
+            builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>()
+                .AddScoped<IUserTaskService, IUserTaskService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
