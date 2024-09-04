@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services.Interfaces;
 
@@ -100,6 +99,16 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
+        public async Task EditTask_TaskThatDoesNotExists_ReturnsDbUpdateConcurrencyException()
+        {
+            UserTask task = validTaskObject;
+
+            Func<Task> act = () => _userTaskService.EditTask(task);
+
+            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(act);
+        }
+
+        [Fact]
         public async Task EditTask_ValidTaskWithDefaultValues_ReturnsDbUpdateException()
         {
             UserTask taskToEdit = new UserTask();
@@ -110,12 +119,13 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task EditTask_ValidTask_ReturnsPriorityMedium()
+        public async Task EditTask_ValidTask_ReturnsUpdatedTask()
         {
             var taskToEdit = await _userTaskService.AddTask(validTaskObject);
             taskToEdit.Priority = Priority.Medium;
 
-            var editedTask = await _userTaskService.EditTask(taskToEdit);
+            await _userTaskService.EditTask(taskToEdit);
+            var editedTask = await _userTaskService.GetTaskById(taskToEdit.Id);
 
             Assert.Equal(Priority.Medium, editedTask.Priority);
         }
