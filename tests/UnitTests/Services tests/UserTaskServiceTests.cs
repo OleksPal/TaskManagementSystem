@@ -25,6 +25,16 @@ namespace TaskManagementSystem.UnitTests
                 ?? throw new ArgumentNullException(nameof(IUserTaskService));
         }
 
+        #region GetAllTasks
+        [Fact]
+        public async Task GetAllTasks_ReturnsNotEmptyCollection()
+        {
+            var taskList = await _userTaskService.GetAllTasks();
+
+            Assert.NotEmpty(taskList);
+        }
+        #endregion
+
         #region GetTaskById
         [Fact]
         public async Task GetTaskById_TaskDoesNotExists_ReturnsNull()

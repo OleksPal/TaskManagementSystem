@@ -13,6 +13,11 @@ namespace TaskManagementSystem.Services
             _taskRepository = taskRepository;
         }
 
+        public async Task<ICollection<UserTask>> GetAllTasks()
+        {
+            return await _taskRepository.GetAll();
+        }
+
         public async Task<UserTask> GetTaskById(Guid id)
         {
             return await _taskRepository.GetById(id);
