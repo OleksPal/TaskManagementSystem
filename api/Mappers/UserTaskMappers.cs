@@ -17,7 +17,6 @@ namespace TaskManagementSystem.Mappers
                 CreatedAt = userTask.CreatedAt,
                 UpdatedAt = userTask.UpdatedAt,
                 UserId = userTask.UserId,
-                User = userTask.User
             };
         }
 
@@ -34,7 +33,6 @@ namespace TaskManagementSystem.Mappers
                 CreatedAt = userTaskDTO.CreatedAt,
                 UpdatedAt = userTaskDTO.UpdatedAt,
                 UserId = userTaskDTO.UserId,
-                User = userTaskDTO.User
             };
         }
     }

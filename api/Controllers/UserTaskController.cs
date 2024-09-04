@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskManagementSystem.Mappers;
+using TaskManagementSystem.Models.DTOs;
 using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.Controllers
@@ -34,6 +36,16 @@ namespace TaskManagementSystem.Controllers
                 return Ok(task);
             else
                 return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] UserTaskDTO taskDTO)
+        {
+            var userTask = taskDTO.ToUserTask();
+
+            await _userTaskService.AddTask(userTask);
+
+            return CreatedAtAction(nameof(GetTask), new { id = userTask.Id }, userTask.ToUserTaskDTO());
         }
     }
 }
