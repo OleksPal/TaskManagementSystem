@@ -7,7 +7,7 @@ using TaskManagementSystem.Repositories;
 
 namespace TaskManagementSystem.UnitTests
 {
-    public class IUserTaskRepositoryTests
+    public class UserTaskRepositoryTests
     {
         protected readonly DbConnection _connection;
         protected readonly DbContextOptions<TaskManagementContext> _contextOptions;
@@ -22,7 +22,7 @@ namespace TaskManagementSystem.UnitTests
             UpdatedAt = DateTime.Now
         };
 
-        public IUserTaskRepositoryTests()
+        public UserTaskRepositoryTests()
         {
             _connection = new SqliteConnection("Filename=:memory:");
             _connection.Open();
@@ -105,15 +105,15 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task Insert_ValidTask_ReturnsSameTask()
+        public async Task Insert_ValidTask_ReturnsNotNull()
         {
             using var context = CreateContext();
             var repository = new UserTaskRepository(context);
-            UserTask task = validTaskObject;
+            await repository.Insert(validTaskObject);
 
-            var addedTask = await repository.Insert(task);
+            var insertedTask = await repository.GetById(validTaskObject.Id);
 
-            Assert.Equal(task.Id, addedTask.Id);
+            Assert.NotNull(insertedTask);
         }
         #endregion
 
@@ -131,7 +131,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task Update_InvalidObject_ReturnsDbUpdateException()
+        public async Task Update_ValidTaskWithDefaultValues_ReturnsDbUpdateException()
         {
             using var context = CreateContext();
             var repository = new UserTaskRepository(context);
