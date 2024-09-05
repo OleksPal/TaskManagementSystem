@@ -15,27 +15,27 @@ namespace TaskManagementSystem.Services
 
         public async Task<ICollection<UserTask>> GetAllTasks()
         {
-            return await _taskRepository.GetAll();
+            return await _taskRepository.GetAllAsync();
         }
 
         public async Task<UserTask> GetTaskById(Guid id)
         {
-            return await _taskRepository.GetById(id);
+            return await _taskRepository.GetByIdAsync(id);
         }
 
         public async Task<UserTask> AddTask(UserTask task)
         {
-            return await _taskRepository.Insert(task);
+            return await _taskRepository.InsertAsync(task);
         }
 
         public async Task<UserTask> EditTask(UserTask task)
         {
-            return await _taskRepository.Update(task);
+            return await _taskRepository.UpdateAsync(task);
         }
 
         public async Task<UserTask> DeleteTask(Guid id)
         {
-            return await _taskRepository.Delete(id);
+            return await _taskRepository.DeleteAsync(id);
         }
     }
 }

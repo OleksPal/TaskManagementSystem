@@ -14,17 +14,17 @@ namespace TaskManagementSystem.Repositories
             _context = context;
         }
 
-        public async Task<ICollection<UserTask>> GetAll()
+        public async Task<ICollection<UserTask>> GetAllAsync()
         {
             return await _context.Tasks.ToListAsync();
         }
 
-        public async Task<UserTask> GetById(Guid id)
+        public async Task<UserTask?> GetByIdAsync(Guid id)
         {
-            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == id);
+            return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<UserTask> Insert(UserTask task)
+        public async Task<UserTask> InsertAsync(UserTask task)
         {
             await _context.Tasks.AddAsync(task);
             await _context.SaveChangesAsync();
@@ -32,7 +32,7 @@ namespace TaskManagementSystem.Repositories
             return task;
         }
 
-        public async Task<UserTask> Update(UserTask task)
+        public async Task<UserTask> UpdateAsync(UserTask task)
         {
             _context.Tasks.Update(task);
             await _context.SaveChangesAsync();
@@ -40,15 +40,15 @@ namespace TaskManagementSystem.Repositories
             return task;
         }
 
-        public async Task<UserTask> Delete(Guid id)
+        public async Task<UserTask?> DeleteAsync(Guid id)
         {
-            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == id);
+            var task = await _context.Tasks.FindAsync(id);
 
-            if (task is not null)
-            {
-                _context.Tasks.Remove(task);
-                await _context.SaveChangesAsync();
-            }                
+            if (task is null)
+                return null;
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();                
 
             return task;
         }
