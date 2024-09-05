@@ -5,7 +5,7 @@ using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tasks")]
     [ApiController]
     public class UserTaskController : ControllerBase
     {
@@ -58,6 +58,15 @@ namespace TaskManagementSystem.Controllers
             await _userTaskService.EditTask(userTask);
 
             return Ok(userTask.ToUserTaskDTO());
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
+        {
+            await _userTaskService.DeleteTask(id);
+
+            return NoContent();
         }
     }
 }
