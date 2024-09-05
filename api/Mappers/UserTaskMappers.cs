@@ -1,5 +1,5 @@
 ﻿using TaskManagementSystem.Models;
-using TaskManagementSystem.Models.DTOs;
+using TaskManagementSystem.DTOs;
 
 namespace TaskManagementSystem.Mappers
 {
@@ -9,6 +9,7 @@ namespace TaskManagementSystem.Mappers
         {
             return new UserTaskDTO
             {
+                Id = userTask.Id,
                 Title = userTask.Title,
                 Description = userTask.Description,
                 DueDate = userTask.DueDate,
@@ -20,11 +21,27 @@ namespace TaskManagementSystem.Mappers
             };
         }
 
-        public static UserTask ToUserTask(this UserTaskDTO userTaskDTO)
+        public static UserTask ToUserTask(this CreateUserTaskRequestDto userTaskDTO)
         {
             return new UserTask
             {
                 Id = Guid.NewGuid(),
+                Title = userTaskDTO.Title,
+                Description = userTaskDTO.Description,
+                DueDate = userTaskDTO.DueDate,
+                Status = userTaskDTO.Status,
+                Priority = userTaskDTO.Priority,
+                CreatedAt = userTaskDTO.CreatedAt,
+                UpdatedAt = userTaskDTO.UpdatedAt,
+                UserId = userTaskDTO.UserId,
+            };
+        }
+
+        public static UserTask ToUserTask(this UpdateUserTaskRequestDto userTaskDTO, Guid id)
+        {
+            return new UserTask
+            {
+                Id = id,
                 Title = userTaskDTO.Title,
                 Description = userTaskDTO.Description,
                 DueDate = userTaskDTO.DueDate,

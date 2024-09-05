@@ -1,6 +1,8 @@
-﻿namespace TaskManagementSystem.Models.DTOs
+﻿using TaskManagementSystem.Models;
+
+namespace TaskManagementSystem.DTOs
 {
-    public class UserTaskDTO
+    public class CreateUserTaskRequestDto
     {
         public string Title { get; set; }
         public string? Description { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskManagementSystem.DTOs;
 using TaskManagementSystem.Mappers;
-using TaskManagementSystem.Models.DTOs;
 using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.Controllers
@@ -21,10 +21,11 @@ namespace TaskManagementSystem.Controllers
         {
             var taskList = await _userTaskService.GetAllTasks();
 
-            if (taskList is not null)
-                return Ok(taskList);
-            else
+            if (taskList is null)
                 return NotFound();
+
+            var taskDtoList = taskList.Select(task => task.ToUserTaskDTO());
+            return Ok(taskDtoList);                
         }
 
         [HttpGet("{id}")]
@@ -32,20 +33,31 @@ namespace TaskManagementSystem.Controllers
         {
             var task = await _userTaskService.GetTaskById(id);
 
-            if (task is not null) 
-                return Ok(task);
-            else
+            if (task is null)
                 return NotFound();
+
+            var taskDto = task.ToUserTaskDTO();
+            return Ok(task);                
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody] UserTaskDTO taskDTO)
+        public async Task<IActionResult> CreateTask([FromBody] CreateUserTaskRequestDto taskDto)
         {
-            var userTask = taskDTO.ToUserTask();
+            var userTask = taskDto.ToUserTask();
 
             await _userTaskService.AddTask(userTask);
 
             return CreatedAtAction(nameof(GetTask), new { id = userTask.Id }, userTask.ToUserTaskDTO());
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto taskDto)
+        {
+            var userTask = taskDto.ToUserTask(id);
+            await _userTaskService.EditTask(userTask);
+
+            return Ok(userTask.ToUserTaskDTO());
         }
     }
 }
