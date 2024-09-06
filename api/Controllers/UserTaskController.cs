@@ -19,52 +19,53 @@ namespace TaskManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTasks()
         {
-            var taskList = await _userTaskService.GetAllTasks();
+            var taskDtoList = await _userTaskService.GetAllTasksAsync();
 
-            if (taskList is null)
+            if (taskDtoList is null)
                 return NotFound();
 
-            var taskDtoList = taskList.Select(task => task.ToUserTaskDTO());
-            return Ok(taskDtoList);                
+            return Ok(taskDtoList);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTask([FromRoute] Guid id)
         {
-            var task = await _userTaskService.GetTaskById(id);
+            var taskDto = await _userTaskService.GetTaskByIdAsync(id);
 
-            if (task is null)
+            if (taskDto is null)
                 return NotFound();
 
-            var taskDto = task.ToUserTaskDTO();
-            return Ok(task);                
+            return Ok(taskDto);                
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody] CreateUserTaskRequestDto taskDto)
+        public async Task<IActionResult> CreateTask([FromBody] CreateUserTaskRequestDto createTaskDto)
         {
-            var userTask = taskDto.ToUserTask();
+            var taskDto = await _userTaskService.AddTaskAsync(createTaskDto);
 
-            await _userTaskService.AddTask(userTask);
-
-            return CreatedAtAction(nameof(GetTask), new { id = userTask.Id }, userTask.ToUserTaskDTO());
+            return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
         }
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto taskDto)
+        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
         {
-            var userTask = taskDto.ToUserTask(id);
-            await _userTaskService.EditTask(userTask);
+            var taskDto = await _userTaskService.EditTaskAsync(id, updateTaskDto);
 
-            return Ok(userTask.ToUserTaskDTO());
+            if (taskDto is null)
+                return NotFound();
+
+            return Ok(taskDto);
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
         {
-            await _userTaskService.DeleteTask(id);
+            var task = await _userTaskService.DeleteTaskAsync(id);
+
+            if (task is null)
+                return NotFound();
 
             return NoContent();
         }

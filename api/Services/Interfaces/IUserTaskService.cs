@@ -1,13 +1,14 @@
-﻿using TaskManagementSystem.Models;
+﻿using TaskManagementSystem.DTOs;
+using TaskManagementSystem.Models;
 
 namespace TaskManagementSystem.Services.Interfaces
 {
     public interface IUserTaskService
     {
-        Task<ICollection<UserTask>> GetAllTasks();
-        Task<UserTask> GetTaskById(Guid id);
-        Task<UserTask> AddTask(UserTask task);
-        Task<UserTask> EditTask(UserTask task);
-        Task<UserTask> DeleteTask(Guid id);
+        Task<ICollection<UserTaskDto>?> GetAllTasksAsync();
+        Task<UserTaskDto?> GetTaskByIdAsync(Guid id);
+        Task<UserTaskDto> AddTaskAsync(CreateUserTaskRequestDto createTaskDto);
+        Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto);
+        Task<UserTask?> DeleteTaskAsync(Guid id);
     }
 }

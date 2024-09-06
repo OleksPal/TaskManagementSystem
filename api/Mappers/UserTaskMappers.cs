@@ -5,9 +5,9 @@ namespace TaskManagementSystem.Mappers
 {
     public static class UserTaskMappers
     {
-        public static UserTaskDTO ToUserTaskDTO(this UserTask userTask)
+        public static UserTaskDto ToUserTaskDTO(this UserTask userTask)
         {
-            return new UserTaskDTO
+            return new UserTaskDto
             {
                 Id = userTask.Id,
                 Title = userTask.Title,

@@ -2,7 +2,7 @@
 
 namespace TaskManagementSystem.DTOs
 {
-    public class UserTaskDTO
+    public class UserTaskDto
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
