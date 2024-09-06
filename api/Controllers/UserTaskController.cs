@@ -27,7 +27,7 @@ namespace TaskManagementSystem.Controllers
             return Ok(taskDtoList);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetTask([FromRoute] Guid id)
         {
             var taskDto = await _userTaskService.GetTaskByIdAsync(id);
@@ -47,7 +47,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:guid}")]
         public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
         {
             var taskDto = await _userTaskService.EditTaskAsync(id, updateTaskDto);
@@ -59,7 +59,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:guid}")]
         public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
         {
             var task = await _userTaskService.DeleteTaskAsync(id);
