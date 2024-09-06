@@ -34,6 +34,8 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<UserTask> UpdateAsync(UserTask task)
         {
+            _context.ChangeTracker.Clear();
+
             _context.Tasks.Update(task);
             await _context.SaveChangesAsync();
             
