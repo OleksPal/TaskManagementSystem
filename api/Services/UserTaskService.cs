@@ -1,4 +1,6 @@
-﻿using TaskManagementSystem.Models;
+﻿using TaskManagementSystem.DTOs;
+using TaskManagementSystem.Mappers;
+using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories.Interfaces;
 using TaskManagementSystem.Services.Interfaces;
 
@@ -13,29 +15,50 @@ namespace TaskManagementSystem.Services
             _taskRepository = taskRepository;
         }
 
-        public async Task<ICollection<UserTask>> GetAllTasks()
+        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync()
         {
-            return await _taskRepository.GetAll();
+            var taskList = await _taskRepository.GetAllAsync();
+
+            if (taskList is null)
+                return null;
+
+            return taskList.Select(task => task.ToUserTaskDTO()).ToList();
         }
 
-        public async Task<UserTask> GetTaskById(Guid id)
+        public async Task<UserTaskDto?> GetTaskByIdAsync(Guid id)
         {
-            return await _taskRepository.GetById(id);
+            var task = await _taskRepository.GetByIdAsync(id);
+
+            if (task is null)
+                return null;
+
+            return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTask> AddTask(UserTask task)
+        public async Task<UserTaskDto> AddTaskAsync(CreateUserTaskRequestDto createTaskDto)
         {
-            return await _taskRepository.Insert(task);
+            var task = createTaskDto.ToUserTask();
+            await _taskRepository.InsertAsync(task);
+
+            return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTask> EditTask(UserTask task)
+        public async Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto)
         {
-            return await _taskRepository.Update(task);
+            var task = await _taskRepository.GetByIdAsync(id);
+
+            if (task is null) 
+                return null;
+
+            task = updateTaskDto.ToUserTask(id);
+            await _taskRepository.UpdateAsync(task);
+
+            return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTask> DeleteTask(Guid id)
+        public async Task<UserTask?> DeleteTaskAsync(Guid id)
         {
-            return await _taskRepository.Delete(id);
+            return await _taskRepository.DeleteAsync(id);
         }
     }
 }

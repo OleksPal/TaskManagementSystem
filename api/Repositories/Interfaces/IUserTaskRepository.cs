@@ -4,10 +4,10 @@ namespace TaskManagementSystem.Repositories.Interfaces
 {
     public interface IUserTaskRepository
     {
-        Task<ICollection<UserTask>> GetAll();
-        Task<UserTask> GetById(Guid id);
-        Task<UserTask> Insert(UserTask task);
-        Task<UserTask> Update(UserTask task);
-        Task<UserTask> Delete(Guid id);
+        Task<ICollection<UserTask>> GetAllAsync();
+        Task<UserTask?> GetByIdAsync(Guid id);
+        Task<UserTask> InsertAsync(UserTask task);
+        Task<UserTask> UpdateAsync(UserTask task);
+        Task<UserTask?> DeleteAsync(Guid id);
     }
 }
