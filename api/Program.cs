@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Data;
+using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories;
 using TaskManagementSystem.Repositories.Interfaces;
 using TaskManagementSystem.Services;
@@ -24,6 +26,16 @@ namespace TaskManagementSystem
 
             builder.Services.AddDbContext<TaskManagementContext>(options => 
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequiredLength = 12;
+            })
+            .AddEntityFrameworkStores<TaskManagementContext>();
 
             var app = builder.Build();
 
