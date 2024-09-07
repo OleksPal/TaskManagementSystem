@@ -42,7 +42,10 @@ namespace TaskManagementSystem.Repositories
                         tasks.OrderBy(task => task.Priority);
             }
 
-            return await tasks.ToListAsync();
+            // Pagination
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+
+            return await tasks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<UserTask?> GetByIdAsync(Guid id)
