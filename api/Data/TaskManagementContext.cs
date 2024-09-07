@@ -20,10 +20,12 @@ namespace TaskManagementSystem.Data
             {
                 new IdentityRole<Guid>
                 {
+                    Id = Guid.NewGuid(),
                     Name = "Admin",
                     NormalizedName = "ADMIN"
                 },
                 new IdentityRole<Guid> {
+                    Id = Guid.NewGuid(),
                     Name = "User",
                     NormalizedName = "USER"
                 }
