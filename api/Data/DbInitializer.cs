@@ -12,7 +12,7 @@ namespace TaskManagementSystem.Data
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Username = "Test",
+                UserName = "Test",
                 Email = "test@gmail.com",                
                 PasswordHash = String.Empty,
                 CreatedAt = DateTime.Now,

@@ -6,7 +6,7 @@ namespace TaskManagementSystem.Models
 {
     [Index(nameof(UserName), IsUnique = true)]
     [Index(nameof(Email), IsUnique = true)]
-    public class User : IdentityUser
+    public class User : IdentityUser<Guid>
     {
         [Required]
         public DateTime CreatedAt { get; set; }
