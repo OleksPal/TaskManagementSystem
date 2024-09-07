@@ -19,6 +19,7 @@ namespace TaskManagementSystem.Repositories
         {
             var tasks = _context.Tasks.AsQueryable();
 
+            // Filtering
             if (query.Status is not null)
                 tasks = tasks.Where(task => task.Status == query.Status);
 
@@ -27,6 +28,19 @@ namespace TaskManagementSystem.Repositories
 
             if (query.Priority is not null)
                 tasks = tasks.Where(task => task.Priority == query.Priority);
+
+            // Sorting
+            if (!String.IsNullOrWhiteSpace(query.SortBy))
+            {
+                if (query.SortBy.Equals("DueDate", StringComparison.OrdinalIgnoreCase))
+                    tasks = query.IsDescending ? 
+                        tasks.OrderByDescending(task => task.DueDate) : 
+                        tasks.OrderBy(task => task.DueDate);
+                else if (query.SortBy.Equals("Priority", StringComparison.OrdinalIgnoreCase))
+                    tasks = query.IsDescending ?
+                        tasks.OrderByDescending(task => task.Priority) :
+                        tasks.OrderBy(task => task.Priority);
+            }
 
             return await tasks.ToListAsync();
         }
