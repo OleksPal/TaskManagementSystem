@@ -17,7 +17,7 @@ namespace TaskManagementSystem.Controllers
             _userManager = userManager;
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             try
