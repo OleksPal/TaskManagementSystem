@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Models;
 
 namespace TaskManagementSystem.Data
 {
-    public class TaskManagementContext : DbContext
+    public class TaskManagementContext : IdentityDbContext<User>
     {
         public TaskManagementContext(DbContextOptions<TaskManagementContext> options) : base(options) { }
 
