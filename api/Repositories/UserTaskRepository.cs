@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Data;
+using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories.Interfaces;
 
@@ -14,9 +15,20 @@ namespace TaskManagementSystem.Repositories
             _context = context;
         }
 
-        public async Task<ICollection<UserTask>> GetAllAsync()
+        public async Task<ICollection<UserTask>> GetAllAsync(QueryObject query)
         {
-            return await _context.Tasks.ToListAsync();
+            var tasks = _context.Tasks.AsQueryable();
+
+            if (query.Status is not null)
+                tasks = tasks.Where(task => task.Status == query.Status);
+
+            if (query.DueDate is not null)
+                tasks = tasks.Where(task => task.DueDate == query.DueDate);
+
+            if (query.Priority is not null)
+                tasks = tasks.Where(task => task.Priority == query.Priority);
+
+            return await tasks.ToListAsync();
         }
 
         public async Task<UserTask?> GetByIdAsync(Guid id)

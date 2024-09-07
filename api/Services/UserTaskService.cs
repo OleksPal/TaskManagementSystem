@@ -1,4 +1,5 @@
 ﻿using TaskManagementSystem.DTOs;
+using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Mappers;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories.Interfaces;
@@ -15,9 +16,9 @@ namespace TaskManagementSystem.Services
             _taskRepository = taskRepository;
         }
 
-        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync()
+        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync(QueryObject query)
         {
-            var taskList = await _taskRepository.GetAllAsync();
+            var taskList = await _taskRepository.GetAllAsync(query);
 
             if (taskList is null)
                 return null;

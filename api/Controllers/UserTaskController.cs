@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs;
-using TaskManagementSystem.Mappers;
+using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.Controllers
@@ -17,9 +17,9 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTasks()
+        public async Task<IActionResult> GetAllTasks([FromQuery] QueryObject query)
         {
-            var taskDtoList = await _userTaskService.GetAllTasksAsync();
+            var taskDtoList = await _userTaskService.GetAllTasksAsync(query);
 
             if (taskDtoList is null)
                 return NotFound();
