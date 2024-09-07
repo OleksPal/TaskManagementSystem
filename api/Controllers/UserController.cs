@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Services;
 
 namespace TaskManagementSystem.Controllers
 {
@@ -11,10 +12,12 @@ namespace TaskManagementSystem.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
+        private readonly ITokenService _tokenService;
 
-        public UserController(UserManager<User> userManager)
+        public UserController(UserManager<User> userManager, ITokenService tokenService)
         {
             _userManager = userManager;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -38,7 +41,15 @@ namespace TaskManagementSystem.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(newUser, "User");
 
                     if (roleResult.Succeeded)
-                        return Ok("User created");
+                        return Ok
+                        (
+                            new NewUserDto
+                            {
+                                UserName = newUser.UserName,
+                                Email = newUser.Email,
+                                Token = _tokenService.CreateToken(newUser)
+                            }
+                        );
                     else
                         return StatusCode(500, roleResult.Errors);
                 }
