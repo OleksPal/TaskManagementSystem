@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories;
@@ -22,6 +23,11 @@ namespace TaskManagementSystem
             builder.Services.AddScoped<IUserTaskRepository, UserTaskRepository>()
                 .AddScoped<IUserTaskService, UserTaskService>()
                 .AddScoped<ITokenService, TokenService>();
+
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
