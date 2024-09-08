@@ -38,7 +38,8 @@ namespace TaskManagementSystem.Controllers
                 var newUser = new User
                 {
                     UserName = registerDto.UserName,
-                    Email = registerDto.Email
+                    Email = registerDto.Email,
+                    CreatedAt = DateTime.Now
                 };
 
                 var createdUser = await _userManager.CreateAsync(newUser, registerDto.Password);
@@ -50,6 +51,7 @@ namespace TaskManagementSystem.Controllers
                     if (roleResult.Succeeded)
                     {
                         _logger.LogInformation($"The user called {newUser.UserName} has been successfully created");
+
                         return Ok(
                             new NewUserDto
                             {
@@ -117,6 +119,8 @@ namespace TaskManagementSystem.Controllers
 
             if (user is null)
                 return StatusCode(500);
+
+            user.UpdatedAt = DateTime.Now;
 
             var passwordChangeResult = 
                 await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
