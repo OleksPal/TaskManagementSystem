@@ -139,7 +139,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("changePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             if (!ModelState.IsValid)

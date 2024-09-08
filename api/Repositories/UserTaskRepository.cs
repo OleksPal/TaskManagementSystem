@@ -17,7 +17,7 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<ICollection<UserTask>> GetAllAsync(Guid userId, QueryObject query)
         {
-            var tasks = _context.Tasks.AsQueryable().Where(task => task.UserId == userId);
+            var tasks = _context.Tasks.AsQueryable().Where(task => task.UserId == userId || task.UserId == null);
 
             // Filtering
             if (query.Status is not null)
