@@ -16,9 +16,9 @@ namespace TaskManagementSystem.Services
             _taskRepository = taskRepository;
         }
 
-        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync(QueryObject query)
+        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync(Guid userId, QueryObject query)
         {
-            var taskList = await _taskRepository.GetAllAsync(query);
+            var taskList = await _taskRepository.GetAllAsync(userId, query);
 
             if (taskList is null)
                 return null;

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs;
+using TaskManagementSystem.Extensions;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services.Interfaces;
@@ -27,7 +28,13 @@ namespace TaskManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTasks([FromQuery] QueryObject query)
         {
-            var taskDtoList = await _userTaskService.GetAllTasksAsync(query);
+            var userName = User.GetUserName();
+            var user = await _userManager.FindByNameAsync(userName);
+
+            if (user is null)
+                return StatusCode(500, "No such user");
+
+            var taskDtoList = await _userTaskService.GetAllTasksAsync(user.Id, query);
 
             if (taskDtoList is null)
                 return NotFound();
