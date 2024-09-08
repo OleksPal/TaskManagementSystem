@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs;
 using TaskManagementSystem.Helpers;
+using TaskManagementSystem.Models;
 using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.Controllers
@@ -12,11 +14,13 @@ namespace TaskManagementSystem.Controllers
     public class UserTaskController : ControllerBase
     {
         private readonly IUserTaskService _userTaskService;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<UserController> _logger;
 
-        public UserTaskController(IUserTaskService userTaskService, ILogger<UserController> logger)
+        public UserTaskController(IUserTaskService userTaskService, UserManager<User> userManager, ILogger<UserController> logger)
         {
             _userTaskService = userTaskService;
+            _userManager = userManager;
             _logger = logger;
         }
 
