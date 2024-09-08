@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.DTOs;
+using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Mappers;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services.Interfaces;
@@ -48,7 +49,8 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async Task GetAllTasks_ReturnsNotEmptyCollection()
         {
-            var taskList = await _userTaskService.GetAllTasksAsync();
+            var query = new QueryObject();
+            var taskList = await _userTaskService.GetAllTasksAsync(query);
 
             Assert.NotEmpty(taskList);
         }
