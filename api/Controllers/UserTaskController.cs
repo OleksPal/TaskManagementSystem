@@ -12,10 +12,12 @@ namespace TaskManagementSystem.Controllers
     public class UserTaskController : ControllerBase
     {
         private readonly IUserTaskService _userTaskService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserTaskController(IUserTaskService userTaskService)
+        public UserTaskController(IUserTaskService userTaskService, ILogger<UserController> logger)
         {
             _userTaskService = userTaskService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -45,6 +47,8 @@ namespace TaskManagementSystem.Controllers
         {
             var taskDto = await _userTaskService.AddTaskAsync(createTaskDto);
 
+            _logger.LogInformation($"Task with id {taskDto.Id} has been created");
+
             return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
         }
 
@@ -57,6 +61,8 @@ namespace TaskManagementSystem.Controllers
             if (taskDto is null)
                 return NotFound();
 
+            _logger.LogWarning($"Task with id {taskDto.Id} has been updated");
+
             return Ok(taskDto);
         }
 
@@ -68,6 +74,8 @@ namespace TaskManagementSystem.Controllers
 
             if (task is null)
                 return NotFound();
+
+            _logger.LogWarning($"Task with id {task.Id} has been deleted");
 
             return NoContent();
         }
