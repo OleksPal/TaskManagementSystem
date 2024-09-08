@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services;
@@ -74,10 +76,10 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == loginDto.UserName.ToLower());
 
@@ -101,6 +103,31 @@ namespace TaskManagementSystem.Controllers
                     Token = _tokenService.CreateToken(user)
                 }
             );
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            var userName = HttpContext.User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname");
+            var user = await _userManager.FindByNameAsync(userName);
+
+            if (user is null)
+                return StatusCode(500);
+
+            var passwordChangeResult = 
+                await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+            if (passwordChangeResult.Succeeded)
+            {
+                _logger.LogWarning($"Password of the user called {user.UserName} has been succesfully changed");
+                return Ok("Password changed succesfully");
+            }
+
+            return StatusCode(500, passwordChangeResult.Errors);
         }
     }
 }
