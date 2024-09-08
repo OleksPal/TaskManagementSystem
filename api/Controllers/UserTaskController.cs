@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Services.Interfaces;
@@ -7,6 +8,7 @@ namespace TaskManagementSystem.Controllers
 {
     [Route("api/tasks")]
     [ApiController]
+    [Authorize]
     public class UserTaskController : ControllerBase
     {
         private readonly IUserTaskService _userTaskService;

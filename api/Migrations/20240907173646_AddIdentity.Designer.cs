@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagementSystem.Data;
 
@@ -11,9 +12,11 @@ using TaskManagementSystem.Data;
 namespace TaskManagementSystem.Migrations
 {
     [DbContext(typeof(TaskManagementContext))]
-    partial class TaskManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20240907173646_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,20 +51,6 @@ namespace TaskManagementSystem.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("56141559-1b24-4d8b-bc16-b913a9f8499f"),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = new Guid("9ace2433-25e4-4e76-831e-9d68e8376cdb"),
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
