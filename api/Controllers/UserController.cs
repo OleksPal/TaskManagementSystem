@@ -14,12 +14,15 @@ namespace TaskManagementSystem.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
+        public UserController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager,
+            ILogger<UserController> logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -43,6 +46,8 @@ namespace TaskManagementSystem.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(newUser, "User");
 
                     if (roleResult.Succeeded)
+                    {
+                        _logger.LogInformation($"The user called {newUser.UserName} has been successfully created");
                         return Ok(
                             new NewUserDto
                             {
@@ -51,10 +56,15 @@ namespace TaskManagementSystem.Controllers
                                 Token = _tokenService.CreateToken(newUser)
                             }
                         );
-                    else
-                        return StatusCode(500, roleResult.Errors);
+                    }
+
+                    _logger.LogInformation($"The attempt to add to role user called {newUser.UserName} has been failed");
+
+                    return StatusCode(500, roleResult.Errors);
                 }
-                
+
+                _logger.LogInformation($"The attempt to create user called {newUser.UserName} has been failed");
+
                 return StatusCode(500, createdUser.Errors);
             }
             catch (Exception ex)
@@ -77,8 +87,12 @@ namespace TaskManagementSystem.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
             if (!result.Succeeded)
+            {
+                _logger.LogWarning($"Failed login attempt from a user called {user.UserName}");
                 return Unauthorized("UserName not found and/or password is wrong");
+            }                
 
+            _logger.LogInformation($"The user called {user.UserName} has successfully logged in");
             return Ok(
                 new NewUserDto
                 {
