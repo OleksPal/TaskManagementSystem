@@ -111,8 +111,8 @@ namespace TaskManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
-            var userName = HttpContext.User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname");
+
+            var userName = HttpContext.User.FindFirstValue("username");
             var user = await _userManager.FindByNameAsync(userName);
 
             if (user is null)
