@@ -26,9 +26,9 @@ namespace TaskManagementSystem.Services
             return taskList.Select(task => task.ToUserTaskDTO()).ToList();
         }
 
-        public async Task<UserTaskDto?> GetTaskByIdAsync(Guid id)
+        public async Task<UserTaskDto?> GetTaskByIdAsync(Guid taskId, Guid userId)
         {
-            var task = await _taskRepository.GetByIdAsync(id);
+            var task = await _taskRepository.GetByIdAsync(taskId, userId);
 
             if (task is null)
                 return null;

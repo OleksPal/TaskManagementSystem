@@ -48,9 +48,9 @@ namespace TaskManagementSystem.Repositories
             return await tasks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
-        public async Task<UserTask?> GetByIdAsync(Guid id)
+        public async Task<UserTask?> GetByIdAsync(Guid taskId, Guid userId)
         {
-            return await _context.Tasks.FindAsync(id);
+            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == task.Id && task.UserId == userId);
         }
 
         public async Task<UserTask> InsertAsync(UserTask task)

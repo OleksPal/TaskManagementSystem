@@ -45,7 +45,13 @@ namespace TaskManagementSystem.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetTask([FromRoute] Guid id)
         {
-            var taskDto = await _userTaskService.GetTaskByIdAsync(id);
+            var userName = User.GetUserName();
+            var user = await _userManager.FindByNameAsync(userName);
+
+            if (user is null)
+                return StatusCode(500, "No such user");
+
+            var taskDto = await _userTaskService.GetTaskByIdAsync(user.Id, id);            
 
             if (taskDto is null)
                 return NotFound();
