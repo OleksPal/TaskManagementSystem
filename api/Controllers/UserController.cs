@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TaskManagementSystem.DTOs.User;
+using TaskManagementSystem.Extensions;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services;
 
@@ -144,7 +145,7 @@ namespace TaskManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userName = HttpContext.User.FindFirstValue("username");
+            var userName = User.GetUserName();
             var user = await _userManager.FindByNameAsync(userName);
 
             if (user is null)
