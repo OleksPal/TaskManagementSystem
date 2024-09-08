@@ -77,8 +77,8 @@ namespace TaskManagementSystem.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        [HttpPost("loginWithUsername")]
+        public async Task<IActionResult> LoginWithUsername([FromBody] LoginWithUsernameDto loginDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -102,6 +102,36 @@ namespace TaskManagementSystem.Controllers
                 {
                     UserName = loginDto.UserName,
                     Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                }
+            );
+        }
+
+        [HttpPost("loginWithEmail")]
+        public async Task<IActionResult> LoginWithEmail([FromBody] LoginWithEmailDto loginDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+
+            if (user is null)
+                return Unauthorized("Invalid email");
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning($"Failed login attempt from a user called {user.UserName}");
+                return Unauthorized("UserName not found and/or password is wrong");
+            }
+
+            _logger.LogInformation($"The user called {user.UserName} has successfully logged in");
+            return Ok(
+                new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = loginDto.Email,
                     Token = _tokenService.CreateToken(user)
                 }
             );
