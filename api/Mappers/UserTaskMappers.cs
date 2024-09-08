@@ -31,8 +31,6 @@ namespace TaskManagementSystem.Mappers
                 DueDate = userTaskDTO.DueDate,
                 Status = userTaskDTO.Status,
                 Priority = userTaskDTO.Priority,
-                CreatedAt = userTaskDTO.CreatedAt,
-                UpdatedAt = userTaskDTO.UpdatedAt,
                 UserId = userTaskDTO.UserId,
             };
         }

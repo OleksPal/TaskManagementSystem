@@ -56,6 +56,9 @@ namespace TaskManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] CreateUserTaskRequestDto createTaskDto)
         {
+            if (ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var taskDto = await _userTaskService.AddTaskAsync(createTaskDto);
 
             _logger.LogInformation($"Task with id {taskDto.Id} has been created");
