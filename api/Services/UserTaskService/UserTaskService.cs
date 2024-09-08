@@ -51,7 +51,7 @@ namespace TaskManagementSystem.Services
             if (task is null) 
                 return null;
 
-            task = updateTaskDto.ToUserTask(id);
+            task = updateTaskDto.ToUserTask(id, task.CreatedAt);
             await _taskRepository.UpdateAsync(task);
 
             return task.ToUserTaskDTO();
