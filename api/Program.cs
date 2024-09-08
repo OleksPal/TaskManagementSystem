@@ -68,6 +68,8 @@ namespace TaskManagementSystem
             })
             .AddEntityFrameworkStores<TaskManagementContext>();
 
+            builder.Services.UpgradePasswordSecurity().UseArgon2<User>();
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = 
