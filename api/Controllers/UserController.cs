@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.Services;
@@ -36,7 +38,8 @@ namespace TaskManagementSystem.Controllers
                 var newUser = new User
                 {
                     UserName = registerDto.UserName,
-                    Email = registerDto.Email
+                    Email = registerDto.Email,
+                    CreatedAt = DateTime.Now
                 };
 
                 var createdUser = await _userManager.CreateAsync(newUser, registerDto.Password);
@@ -48,6 +51,7 @@ namespace TaskManagementSystem.Controllers
                     if (roleResult.Succeeded)
                     {
                         _logger.LogInformation($"The user called {newUser.UserName} has been successfully created");
+
                         return Ok(
                             new NewUserDto
                             {
@@ -73,11 +77,11 @@ namespace TaskManagementSystem.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        [HttpPost("loginWithUsername")]
+        public async Task<IActionResult> LoginWithUsername([FromBody] LoginWithUsernameDto loginDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == loginDto.UserName.ToLower());
 
@@ -101,6 +105,63 @@ namespace TaskManagementSystem.Controllers
                     Token = _tokenService.CreateToken(user)
                 }
             );
+        }
+
+        [HttpPost("loginWithEmail")]
+        public async Task<IActionResult> LoginWithEmail([FromBody] LoginWithEmailDto loginDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+
+            if (user is null)
+                return Unauthorized("Invalid email");
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+
+            if (!result.Succeeded)
+            {
+                _logger.LogWarning($"Failed login attempt from a user called {user.UserName}");
+                return Unauthorized("UserName not found and/or password is wrong");
+            }
+
+            _logger.LogInformation($"The user called {user.UserName} has successfully logged in");
+            return Ok(
+                new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = loginDto.Email,
+                    Token = _tokenService.CreateToken(user)
+                }
+            );
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userName = HttpContext.User.FindFirstValue("username");
+            var user = await _userManager.FindByNameAsync(userName);
+
+            if (user is null)
+                return StatusCode(500);
+
+            user.UpdatedAt = DateTime.Now;
+
+            var passwordChangeResult = 
+                await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+            if (passwordChangeResult.Succeeded)
+            {
+                _logger.LogWarning($"Password of the user called {user.UserName} has been succesfully changed");
+                return Ok("Password changed succesfully");
+            }
+
+            return StatusCode(500, passwordChangeResult.Errors);
         }
     }
 }
