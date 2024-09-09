@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
@@ -15,9 +16,9 @@ namespace TaskManagementSystem.Repositories
             _context = context;
         }
 
-        public async Task<ICollection<UserTask>> GetAllAsync(QueryObject query)
+        public async Task<ICollection<UserTask>> GetAllAsync(Guid userId, QueryObject query)
         {
-            var tasks = _context.Tasks.AsQueryable();
+            var tasks = _context.Tasks.AsQueryable().Where(task => task.UserId == userId || task.UserId == null);
 
             // Filtering
             if (query.Status is not null)
@@ -48,13 +49,16 @@ namespace TaskManagementSystem.Repositories
             return await tasks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
-        public async Task<UserTask?> GetByIdAsync(Guid id)
+        public async Task<UserTask?> GetByIdAsync(Guid taskId, Guid userId)
         {
-            return await _context.Tasks.FindAsync(id);
+            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
         }
 
         public async Task<UserTask> InsertAsync(UserTask task)
         {
+            task.CreatedAt = DateTime.Now;
+            task.UpdatedAt = DateTime.Now;
+
             await _context.Tasks.AddAsync(task);
             await _context.SaveChangesAsync();
 
@@ -65,15 +69,16 @@ namespace TaskManagementSystem.Repositories
         {
             _context.ChangeTracker.Clear();
 
+            task.UpdatedAt = DateTime.Now;
             _context.Tasks.Update(task);
             await _context.SaveChangesAsync();
             
             return task;
         }
 
-        public async Task<UserTask?> DeleteAsync(Guid id)
+        public async Task<UserTask?> DeleteAsync(Guid taskId, Guid userId)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
 
             if (task is null)
                 return null;

@@ -31,13 +31,11 @@ namespace TaskManagementSystem.Mappers
                 DueDate = userTaskDTO.DueDate,
                 Status = userTaskDTO.Status,
                 Priority = userTaskDTO.Priority,
-                CreatedAt = userTaskDTO.CreatedAt,
-                UpdatedAt = userTaskDTO.UpdatedAt,
                 UserId = userTaskDTO.UserId,
             };
         }
 
-        public static UserTask ToUserTask(this UpdateUserTaskRequestDto userTaskDTO, Guid id)
+        public static UserTask ToUserTask(this UpdateUserTaskRequestDto userTaskDTO, Guid id, DateTime createdAt)
         {
             return new UserTask
             {
@@ -47,8 +45,7 @@ namespace TaskManagementSystem.Mappers
                 DueDate = userTaskDTO.DueDate,
                 Status = userTaskDTO.Status,
                 Priority = userTaskDTO.Priority,
-                CreatedAt = userTaskDTO.CreatedAt,
-                UpdatedAt = userTaskDTO.UpdatedAt,
+                CreatedAt = createdAt,
                 UserId = userTaskDTO.UserId,
             };
         }

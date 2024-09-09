@@ -16,9 +16,9 @@ namespace TaskManagementSystem.Services
             _taskRepository = taskRepository;
         }
 
-        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync(QueryObject query)
+        public async Task<ICollection<UserTaskDto>?> GetAllTasksAsync(Guid userId, QueryObject query)
         {
-            var taskList = await _taskRepository.GetAllAsync(query);
+            var taskList = await _taskRepository.GetAllAsync(userId, query);
 
             if (taskList is null)
                 return null;
@@ -26,9 +26,9 @@ namespace TaskManagementSystem.Services
             return taskList.Select(task => task.ToUserTaskDTO()).ToList();
         }
 
-        public async Task<UserTaskDto?> GetTaskByIdAsync(Guid id)
+        public async Task<UserTaskDto?> GetTaskByIdAsync(Guid taskId, Guid userId)
         {
-            var task = await _taskRepository.GetByIdAsync(id);
+            var task = await _taskRepository.GetByIdAsync(taskId, userId);
 
             if (task is null)
                 return null;
@@ -44,22 +44,22 @@ namespace TaskManagementSystem.Services
             return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto)
+        public async Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto, Guid userId)
         {
-            var task = await _taskRepository.GetByIdAsync(id);
+            var task = await _taskRepository.GetByIdAsync(id, userId);
 
             if (task is null) 
                 return null;
 
-            task = updateTaskDto.ToUserTask(id);
+            task = updateTaskDto.ToUserTask(id, task.CreatedAt);
             await _taskRepository.UpdateAsync(task);
 
             return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTask?> DeleteTaskAsync(Guid id)
+        public async Task<UserTask?> DeleteTaskAsync(Guid id, Guid userId)
         {
-            return await _taskRepository.DeleteAsync(id);
+            return await _taskRepository.DeleteAsync(id, userId);
         }
     }
 }

@@ -21,12 +21,6 @@ namespace TaskManagementSystem.DTOs
         [Required]
         public Priority Priority { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
-        public DateTime UpdatedAt { get; set; }
-
         public Guid? UserId { get; set; }
     }
 }
