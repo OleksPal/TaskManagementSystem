@@ -49,7 +49,7 @@ namespace TaskManagementSystem.Controllers
             if (user is null)
                 return StatusCode(500, "No such user");
 
-            var taskDto = await _userTaskService.GetTaskByIdAsync(user.Id, taskId);            
+            var taskDto = await _userTaskService.GetTaskByIdAsync(taskId, user.Id);            
 
             if (taskDto is null)
                 return NotFound();

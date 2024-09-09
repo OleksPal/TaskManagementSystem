@@ -50,7 +50,7 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<UserTask?> GetByIdAsync(Guid taskId, Guid userId)
         {
-            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == task.Id && task.UserId == userId);
+            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
         }
 
         public async Task<UserTask> InsertAsync(UserTask task)
