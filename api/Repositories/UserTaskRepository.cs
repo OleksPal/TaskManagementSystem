@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
@@ -75,9 +76,9 @@ namespace TaskManagementSystem.Repositories
             return task;
         }
 
-        public async Task<UserTask?> DeleteAsync(Guid id, Guid userId)
+        public async Task<UserTask?> DeleteAsync(Guid taskId, Guid userId)
         {
-            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == task.Id && task.UserId == userId);
+            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
 
             if (task is null)
                 return null;

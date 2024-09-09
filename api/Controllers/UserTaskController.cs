@@ -67,7 +67,7 @@ namespace TaskManagementSystem.Controllers
 
             _logger.LogInformation($"Task with id {taskDto.Id} has been created");
 
-            return CreatedAtAction(nameof(GetTask), new { id = taskDto.Id }, taskDto);
+            return CreatedAtAction(nameof(GetTask), new { taskId = taskDto.Id }, taskDto);
         }
 
         [HttpPut]
