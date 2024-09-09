@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.Repositories;
 using TaskManagementSystem.Repositories.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
@@ -19,10 +21,13 @@ namespace TaskManagementSystem.UnitTests
             UpdatedAt = DateTime.Now
         };
 
+        protected readonly Guid existingUserId;
+
         public UserTaskRepositoryTests()
         {
             _userTaskRepository = Helper.GetRequiredService<IUserTaskRepository>()
                 ?? throw new ArgumentNullException(nameof(IUserTaskRepository));
+            existingUserId = Helper.existingUserId;
         }
 
         #region GetAll
@@ -30,7 +35,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task GetAll_ReturnsNotEmpty()
         {
             var query = new QueryObject();
-            var taskList = await _userTaskRepository.GetAllAsync(query);
+            var taskList = await _userTaskRepository.GetAllAsync(existingUserId, query);
 
             Assert.NotEmpty(taskList);
         }
@@ -40,7 +45,7 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async Task GetById_TaskDoesNotExists_ReturnsNull()
         {
-            var task = await _userTaskRepository.GetByIdAsync(Guid.Empty);
+            var task = await _userTaskRepository.GetByIdAsync(Guid.Empty, existingUserId);
 
             Assert.Null(task);
         }
@@ -50,7 +55,7 @@ namespace TaskManagementSystem.UnitTests
         {
             var insertedTask = await _userTaskRepository.InsertAsync(validTaskObject);
 
-            var task = await _userTaskRepository.GetByIdAsync(insertedTask.Id);
+            var task = await _userTaskRepository.GetByIdAsync(insertedTask.Id, existingUserId);
 
             Assert.NotNull(task);
         }
@@ -74,14 +79,16 @@ namespace TaskManagementSystem.UnitTests
 
             Func<Task> act = () => _userTaskRepository.InsertAsync(taskToInsert);
 
-            await Assert.ThrowsAsync<ArgumentNullException>(act);
+            await Assert.ThrowsAsync<NullReferenceException>(act);
         }
 
         [Fact]
         public async Task Insert_ValidTask_ReturnsNotNull()
         {
-            var taskToInsert = await _userTaskRepository.InsertAsync(validTaskObject);
-            var insertedTask = await _userTaskRepository.GetByIdAsync(taskToInsert.Id);
+            var taskToInsert = validTaskObject;
+
+            await _userTaskRepository.InsertAsync(taskToInsert);
+            var insertedTask = await _userTaskRepository.GetByIdAsync(taskToInsert.Id, existingUserId);
 
             Assert.NotNull(insertedTask);
         }
@@ -125,7 +132,7 @@ namespace TaskManagementSystem.UnitTests
             insertedTask.Priority = Priority.Medium;
 
             await _userTaskRepository.UpdateAsync(insertedTask);
-            var updatedTask = await _userTaskRepository.GetByIdAsync(insertedTask.Id);
+            var updatedTask = await _userTaskRepository.GetByIdAsync(insertedTask.Id, existingUserId);
 
             Assert.Equal(Priority.Medium, updatedTask.Priority);
         }
@@ -135,7 +142,7 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async Task Delete_TaskThatDoesNotExists_ReturnsNull()
         {
-            var deletedTask = await _userTaskRepository.DeleteAsync(Guid.Empty);
+            var deletedTask = await _userTaskRepository.DeleteAsync(Guid.Empty, existingUserId);
 
             Assert.Null(deletedTask);
         }
@@ -145,8 +152,8 @@ namespace TaskManagementSystem.UnitTests
         {
             var taskToDelete = await _userTaskRepository.InsertAsync(validTaskObject);
 
-            await _userTaskRepository.DeleteAsync(taskToDelete.Id);
-            var deletedTask = await _userTaskRepository.GetByIdAsync(taskToDelete.Id);
+            await _userTaskRepository.DeleteAsync(taskToDelete.Id, existingUserId);
+            var deletedTask = await _userTaskRepository.GetByIdAsync(taskToDelete.Id, existingUserId);
 
             Assert.Null(deletedTask);
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.DTOs;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Mappers;
@@ -10,6 +11,7 @@ namespace TaskManagementSystem.UnitTests
     public class UserTaskServiceTests
     {
         protected readonly IUserTaskService _userTaskService;
+        protected readonly Guid existingUserId;
 
         protected readonly UserTask validTaskObject = new UserTask
         {
@@ -21,28 +23,25 @@ namespace TaskManagementSystem.UnitTests
             UpdatedAt = DateTime.Now
         };
 
-        public readonly CreateUserTaskRequestDto _userTaskCreateDto = new()
+        protected readonly CreateUserTaskRequestDto _userTaskCreateDto = new()
         {
             Title = "CreateTest",
             Status = Status.Completed,
             Priority = Priority.Low,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
         };
 
-        public readonly UpdateUserTaskRequestDto _userTaskUpdateDto = new()
+        protected readonly UpdateUserTaskRequestDto _userTaskUpdateDto = new()
         {
             Title = "UpdateTest",
             Status = Status.Completed,
             Priority = Priority.Low,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
         };
 
         public UserTaskServiceTests()
         {
             _userTaskService = Helper.GetRequiredService<IUserTaskService>()
                 ?? throw new ArgumentNullException(nameof(IUserTaskService));
+            existingUserId = Helper.existingUserId;
         }
 
         #region GetAllTasks
@@ -50,7 +49,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task GetAllTasks_ReturnsNotEmptyCollection()
         {
             var query = new QueryObject();
-            var taskList = await _userTaskService.GetAllTasksAsync(query);
+            var taskList = await _userTaskService.GetAllTasksAsync(existingUserId, query);
 
             Assert.NotEmpty(taskList);
         }
@@ -60,7 +59,7 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async Task GetTaskById_TaskDoesNotExists_ReturnsNull()
         {
-            var task = await _userTaskService.GetTaskByIdAsync(Guid.Empty);
+            var task = await _userTaskService.GetTaskByIdAsync(Guid.Empty, existingUserId);
 
             Assert.Null(task);
         }
@@ -70,7 +69,7 @@ namespace TaskManagementSystem.UnitTests
         {
             var addedTask = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
 
-            var task = await _userTaskService.GetTaskByIdAsync(addedTask.Id);
+            var task = await _userTaskService.GetTaskByIdAsync(addedTask.Id, existingUserId);
 
             Assert.NotNull(task);
         }
@@ -103,7 +102,7 @@ namespace TaskManagementSystem.UnitTests
             CreateUserTaskRequestDto taskToAdd = _userTaskCreateDto;
 
             var task = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
-            var addedTask = await _userTaskService.GetTaskByIdAsync(task.Id);
+            var addedTask = await _userTaskService.GetTaskByIdAsync(task.Id, existingUserId);
 
             Assert.NotNull(addedTask);
         }
@@ -116,7 +115,7 @@ namespace TaskManagementSystem.UnitTests
             var task = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
             UpdateUserTaskRequestDto taskToEdit = null;
 
-            Func<Task> act = () => _userTaskService.EditTaskAsync(task.Id, taskToEdit);
+            Func<Task> act = () => _userTaskService.EditTaskAsync(task.Id, taskToEdit, existingUserId);
 
             await Assert.ThrowsAsync<NullReferenceException>(act);
         }
@@ -126,7 +125,7 @@ namespace TaskManagementSystem.UnitTests
         {
             UpdateUserTaskRequestDto task = _userTaskUpdateDto;
 
-            var taskDto = await _userTaskService.EditTaskAsync(Guid.Empty, task);
+            var taskDto = await _userTaskService.EditTaskAsync(Guid.Empty, task, existingUserId);
 
             Assert.Null(taskDto);
         }
@@ -135,10 +134,16 @@ namespace TaskManagementSystem.UnitTests
         public async Task EditTask_ValidTask_ReturnsUpdatedTask()
         {
             var taskToEdit = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
-            _userTaskUpdateDto.Priority = Priority.Medium;
 
-            await _userTaskService.EditTaskAsync(taskToEdit.Id, _userTaskUpdateDto);
-            var editedTask = await _userTaskService.GetTaskByIdAsync(taskToEdit.Id);
+            UpdateUserTaskRequestDto taskToUpdate = new()
+            {
+                Title = taskToEdit.Title,
+                Status = taskToEdit.Status,
+                Priority = Priority.Medium
+            };
+
+            await _userTaskService.EditTaskAsync(taskToEdit.Id, taskToUpdate, existingUserId);
+            var editedTask = await _userTaskService.GetTaskByIdAsync(taskToEdit.Id, existingUserId);
 
             Assert.Equal(Priority.Medium, editedTask.Priority);
         }
@@ -148,7 +153,7 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async Task DeleteTask_TaskThatDoesNotExists_ReturnsNull()
         {
-            var deletedTask = await _userTaskService.DeleteTaskAsync(Guid.Empty);
+            var deletedTask = await _userTaskService.DeleteTaskAsync(Guid.Empty, existingUserId);
 
             Assert.Null(deletedTask);
         }
@@ -156,10 +161,11 @@ namespace TaskManagementSystem.UnitTests
         [Fact]
         public async void DeleteTask_TaskThatExists_ReturnsNull()
         {
-            var addedTask = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
+            var taskToAdd = _userTaskCreateDto;
+            var addedTask = await _userTaskService.AddTaskAsync(taskToAdd);
 
-            await _userTaskService.DeleteTaskAsync(addedTask.Id);
-            var deletedTask = await _userTaskService.GetTaskByIdAsync(addedTask.Id);
+            await _userTaskService.DeleteTaskAsync(addedTask.Id, existingUserId);
+            var deletedTask = await _userTaskService.GetTaskByIdAsync(addedTask.Id, existingUserId);
 
             Assert.Null(deletedTask);
         }
