@@ -56,6 +56,8 @@ namespace TaskManagementSystem.Repositories
         public async Task<UserTask> InsertAsync(UserTask task)
         {
             task.CreatedAt = DateTime.Now;
+            task.UpdatedAt = DateTime.Now;
+
             await _context.Tasks.AddAsync(task);
             await _context.SaveChangesAsync();
 
