@@ -73,9 +73,9 @@ namespace TaskManagementSystem.Repositories
             return task;
         }
 
-        public async Task<UserTask?> DeleteAsync(Guid id)
+        public async Task<UserTask?> DeleteAsync(Guid id, Guid userId)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == task.Id && task.UserId == userId);
 
             if (task is null)
                 return null;

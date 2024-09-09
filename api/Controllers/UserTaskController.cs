@@ -28,8 +28,7 @@ namespace TaskManagementSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllTasks([FromQuery] QueryObject query)
         {
-            var userName = User.GetUserName();
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await GetUser();
 
             if (user is null)
                 return StatusCode(500, "No such user");
@@ -42,16 +41,15 @@ namespace TaskManagementSystem.Controllers
             return Ok(taskDtoList);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetTask([FromRoute] Guid id)
+        [HttpGet("{taskId:guid}")]
+        public async Task<IActionResult> GetTask([FromRoute] Guid taskId)
         {
-            var userName = User.GetUserName();
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await GetUser();
 
             if (user is null)
                 return StatusCode(500, "No such user");
 
-            var taskDto = await _userTaskService.GetTaskByIdAsync(user.Id, id);            
+            var taskDto = await _userTaskService.GetTaskByIdAsync(user.Id, taskId);            
 
             if (taskDto is null)
                 return NotFound();
@@ -76,7 +74,12 @@ namespace TaskManagementSystem.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
         {
-            var taskDto = await _userTaskService.EditTaskAsync(id, updateTaskDto);
+            var user = await GetUser();
+
+            if (user is null)
+                return StatusCode(500, "No such user");
+
+            var taskDto = await _userTaskService.EditTaskAsync(id, updateTaskDto, user.Id);
 
             if (taskDto is null)
                 return NotFound();
@@ -90,7 +93,12 @@ namespace TaskManagementSystem.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
         {
-            var task = await _userTaskService.DeleteTaskAsync(id);
+            var user = await GetUser();
+
+            if (user is null)
+                return StatusCode(500, "No such user");
+
+            var task = await _userTaskService.DeleteTaskAsync(id, user.Id);
 
             if (task is null)
                 return NotFound();
@@ -98,6 +106,12 @@ namespace TaskManagementSystem.Controllers
             _logger.LogWarning($"Task with id {task.Id} has been deleted");
 
             return NoContent();
+        }
+
+        private async Task<User> GetUser()
+        {
+            var userName = User.GetUserName();
+            return await _userManager.FindByNameAsync(userName);
         }
     }
 }

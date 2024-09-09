@@ -9,7 +9,7 @@ namespace TaskManagementSystem.Services.Interfaces
         Task<ICollection<UserTaskDto>?> GetAllTasksAsync(Guid userId, QueryObject query);
         Task<UserTaskDto?> GetTaskByIdAsync(Guid taskId, Guid userId);
         Task<UserTaskDto> AddTaskAsync(CreateUserTaskRequestDto createTaskDto);
-        Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto);
-        Task<UserTask?> DeleteTaskAsync(Guid id);
+        Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto, Guid userId);
+        Task<UserTask?> DeleteTaskAsync(Guid id, Guid userId);
     }
 }

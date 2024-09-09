@@ -9,6 +9,6 @@ namespace TaskManagementSystem.Repositories.Interfaces
         Task<UserTask?> GetByIdAsync(Guid id, Guid userId);
         Task<UserTask> InsertAsync(UserTask task);
         Task<UserTask> UpdateAsync(UserTask task);
-        Task<UserTask?> DeleteAsync(Guid id);
+        Task<UserTask?> DeleteAsync(Guid id, Guid userId);
     }
 }

@@ -44,9 +44,9 @@ namespace TaskManagementSystem.Services
             return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto)
+        public async Task<UserTaskDto?> EditTaskAsync(Guid id, UpdateUserTaskRequestDto updateTaskDto, Guid userId)
         {
-            var task = await _taskRepository.GetByIdAsync(id);
+            var task = await _taskRepository.GetByIdAsync(id, userId);
 
             if (task is null) 
                 return null;
@@ -57,9 +57,9 @@ namespace TaskManagementSystem.Services
             return task.ToUserTaskDTO();
         }
 
-        public async Task<UserTask?> DeleteTaskAsync(Guid id)
+        public async Task<UserTask?> DeleteTaskAsync(Guid id, Guid userId)
         {
-            return await _taskRepository.DeleteAsync(id);
+            return await _taskRepository.DeleteAsync(id, userId);
         }
     }
 }
