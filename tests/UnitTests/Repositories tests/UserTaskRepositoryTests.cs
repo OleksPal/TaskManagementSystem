@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
-using TaskManagementSystem.Repositories;
 using TaskManagementSystem.Repositories.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
@@ -27,7 +25,7 @@ namespace TaskManagementSystem.UnitTests
         {
             _userTaskRepository = Helper.GetRequiredService<IUserTaskRepository>()
                 ?? throw new ArgumentNullException(nameof(IUserTaskRepository));
-            existingUserId = Helper.existingUserId;
+            existingUserId = Helper.ExistingUserId;
         }
 
         #region GetAll
