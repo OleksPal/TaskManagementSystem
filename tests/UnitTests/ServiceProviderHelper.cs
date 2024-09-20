@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TaskManagementSystem.Data;
+using TaskManagementSystem.Models;
 using TaskManagementSystem.Repositories;
 using TaskManagementSystem.Repositories.Interfaces;
 using TaskManagementSystem.Services;
@@ -10,7 +11,8 @@ namespace TaskManagementSystem.UnitTests
 {
     public static class Helper
     {
-        public static Guid ExistingUserId { get; private set; }
+        public static User ExistingUser { get; private set; }
+        public static UserTask ExistingTask { get; private set; }
 
         private static IServiceProvider Provider()
         {
@@ -39,21 +41,27 @@ namespace TaskManagementSystem.UnitTests
             var context = scope.ServiceProvider.GetRequiredService<TaskManagementContext>();
 
             AddData(context);
-
-            ExistingUserId = GetExistingUserId(context);
+            SetExistingEntities(context);
 
             return requiredService;
         }
 
         private static void AddData(TaskManagementContext context)
         {
+            context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             DbInitializer.Initialize(context);
         }
 
-        private static Guid GetExistingUserId(TaskManagementContext context)
+        private static void SetExistingEntities(TaskManagementContext context)
         {
-            return context.Users.Select(u => u.Id).FirstOrDefault();
+            ExistingUser = context.Users.FirstOrDefault();
+            ExistingTask = context.Tasks.FirstOrDefault();
+
+            if (ExistingUser is null)
+                throw new NullReferenceException("Users table is empty");
+            else if (ExistingTask is null)
+                throw new NullReferenceException("Tasks table is empty");
         }
     }        
 }
