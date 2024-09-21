@@ -5,6 +5,7 @@ using TaskManagementSystem.Repositories.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
 {
+    [Collection("TestCollection")]
     public class UserTaskRepositoryTests
     {
         public static IEnumerable<object[]> UserIds => new List<object[]>

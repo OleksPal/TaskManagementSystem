@@ -6,167 +6,273 @@ using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
 {
+    [Collection("TestCollection")]
     public class UserTaskServiceTests
     {
-        //protected readonly IUserTaskService _userTaskService;
-        //protected readonly Guid existingUserId;
+        public static IEnumerable<object[]> UserIds => new List<object[]>
+        {
+            new object[] { Guid.Empty },
+            new object[] { Helper.ExistingUser.Id }
+        };
 
-        //protected readonly UserTask validTaskObject = new UserTask
-        //{
-        //    Id = Guid.NewGuid(),
-        //    Title = "Test",
-        //    Status = Status.Completed,
-        //    Priority = Priority.Low,
-        //    CreatedAt = DateTime.Now,
-        //    UpdatedAt = DateTime.Now
-        //};
+        protected readonly IUserTaskService _userTaskService;
 
-        //protected readonly CreateUserTaskRequestDto _userTaskCreateDto = new()
-        //{
-        //    Title = "CreateTest",
-        //    Status = Status.Completed,
-        //    Priority = Priority.Low,
-        //};
+        public UserTaskServiceTests()
+        {
+            _userTaskService = Helper.GetRequiredService<IUserTaskService>()
+                ?? throw new ArgumentNullException(nameof(IUserTaskService));
+        }
 
-        //protected readonly UpdateUserTaskRequestDto _userTaskUpdateDto = new()
-        //{
-        //    Title = "UpdateTest",
-        //    Status = Status.Completed,
-        //    Priority = Priority.Low,
-        //};
+        #region GetAllTasksAsync
+        [Fact]
+        public async Task GetAllTasksAsync_ByExistingUser_ReturnsNotEmpty()
+        {
+            // Arrange
+            var query = new QueryObject();
+            var existingUserId = Helper.ExistingUser.Id;
 
-        //public UserTaskServiceTests()
-        //{
-        //    _userTaskService = Helper.GetRequiredService<IUserTaskService>()
-        //        ?? throw new ArgumentNullException(nameof(IUserTaskService));
-        //    existingUserId = Helper.ExistingUserId;
-        //}
+            // Act
+            var taskList = await _userTaskService.GetAllTasksAsync(existingUserId, query);
 
-        //#region GetAllTasks
-        //[Fact]
-        //public async Task GetAllTasks_ReturnsNotEmptyCollection()
-        //{
-        //    var query = new QueryObject();
-        //    var taskList = await _userTaskService.GetAllTasksAsync(existingUserId, query);
+            // Assert
+            Assert.NotEmpty(taskList);
+        }
 
-        //    Assert.NotEmpty(taskList);
-        //}
-        //#endregion
+        [Fact]
+        public async Task GetAllTasksAsync_ByNonExistentUser_ReturnsEmpty()
+        {
+            // Arrange
+            var query = new QueryObject();
+            var existingUserId = Guid.Empty;
 
-        //#region GetTaskById
-        //[Fact]
-        //public async Task GetTaskById_TaskDoesNotExists_ReturnsNull()
-        //{
-        //    var task = await _userTaskService.GetTaskByIdAsync(Guid.Empty, existingUserId);
+            // Act
+            var taskList = await _userTaskService.GetAllTasksAsync(existingUserId, query);
 
-        //    Assert.Null(task);
-        //}
+            // Assert
+            Assert.Empty(taskList);
+        }
+        #endregion
 
-        //[Fact]
-        //public async Task GetTaskById_TaskThatExists_ReturnsNotNull()
-        //{
-        //    var addedTask = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
+        #region GetTaskByIdAsync
+        [Theory]
+        [MemberData(nameof(UserIds))]
+        public async Task GetTaskByIdAsync_TaskDoesNotExists_ReturnsNull(Guid userId)
+        {
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
 
-        //    var task = await _userTaskService.GetTaskByIdAsync(addedTask.Id, existingUserId);
+            // Act
+            var task = await _userTaskService.GetTaskByIdAsync(nonExistentTaskId, userId);
 
-        //    Assert.NotNull(task);
-        //}
-        //#endregion
+            // Assert
+            Assert.Null(task);
+        }
 
-        //#region AddTask
-        //[Fact]
-        //public async Task AddTask_Null_ReturnsNullReferenceException()
-        //{
-        //    CreateUserTaskRequestDto taskToAdd = null;
+        [Fact]
+        public async Task GetTaskByIdAsync_TaskThatExists_ByExistingUser_ReturnsNotNull()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
 
-        //    Func<Task> act = () => _userTaskService.AddTaskAsync(taskToAdd);
+            // Act
+            var task = await _userTaskService.GetTaskByIdAsync(existingTaskId, existingUserId);
 
-        //    await Assert.ThrowsAsync<NullReferenceException>(act);
-        //}
+            // Assert
+            Assert.NotNull(task);
+        }
 
-        //[Fact]
-        //public async Task AddTask_ValidTaskWithDefaultValues_ReturnsDbUpdateException()
-        //{
-        //    CreateUserTaskRequestDto taskToAdd = new();
+        [Fact]
+        public async Task GetTaskByIdAsync_TaskThatExists_ByNonExistentUser_ReturnsNull()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var nonExistentUserId = Guid.Empty;
 
-        //    Func<Task> act = () => _userTaskService.AddTaskAsync(taskToAdd);
+            // Act
+            var task = await _userTaskService.GetTaskByIdAsync(existingTaskId, nonExistentUserId);
 
-        //    await Assert.ThrowsAsync<DbUpdateException>(act);
-        //}
+            // Assert
+            Assert.Null(task);
+        }
+        #endregion
 
-        //[Fact]
-        //public async Task AddTask_ValidTask_ReturnsNotNull()
-        //{
-        //    CreateUserTaskRequestDto taskToAdd = _userTaskCreateDto;
+        #region AddTaskAsync
+        [Fact]
+        public async Task AddTaskAsync_Null_ReturnsNullReferenceException()
+        {
+            // Arrange
+            CreateUserTaskRequestDto createTaskDto = null;
 
-        //    var task = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
-        //    var addedTask = await _userTaskService.GetTaskByIdAsync(task.Id, existingUserId);
+            // Act
+            Func<Task> act = () => _userTaskService.AddTaskAsync(createTaskDto);
 
-        //    Assert.NotNull(addedTask);
-        //}
-        //#endregion
+            // Assert
+            await Assert.ThrowsAsync<NullReferenceException>(act);
+        }
 
-        //#region EditTask
-        //[Fact]
-        //public async Task EditTask_Null_ReturnsNullReferenceException()
-        //{
-        //    var task = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
-        //    UpdateUserTaskRequestDto taskToEdit = null;
+        [Fact]
+        public async Task AddTaskAsync_InvalidTaskWithoutRequiredProperties_ReturnsDbUpdateException()
+        {
+            // Arrange
+            CreateUserTaskRequestDto createTaskDto = new();
 
-        //    Func<Task> act = () => _userTaskService.EditTaskAsync(task.Id, taskToEdit, existingUserId);
+            // Act
+            Func<Task> act = () => _userTaskService.AddTaskAsync(createTaskDto);
 
-        //    await Assert.ThrowsAsync<NullReferenceException>(act);
-        //}
+            // Assert
+            await Assert.ThrowsAsync<DbUpdateException>(act);
+        }
 
-        //[Fact]
-        //public async Task EditTask_TaskThatDoesNotExists_ReturnsNull()
-        //{
-        //    UpdateUserTaskRequestDto task = _userTaskUpdateDto;
+        [Fact]
+        public async Task AddTaskAsync_ValidTask_ReturnsNotNull()
+        {
+            // Arrange
+            var createTaskDto = new CreateUserTaskRequestDto
+            {
+                Title = "AddValidTask",
+                Status = Status.Completed,
+                Priority = Priority.Low,
+                UserId = Helper.ExistingUser.Id
+            };
+            var existingUserId = Helper.ExistingUser.Id;
 
-        //    var taskDto = await _userTaskService.EditTaskAsync(Guid.Empty, task, existingUserId);
+            //Act
+            var addedTask = await _userTaskService.AddTaskAsync(createTaskDto);
 
-        //    Assert.Null(taskDto);
-        //}
+            // Assert
+            var task = await _userTaskService.GetTaskByIdAsync(addedTask.Id, existingUserId);
+            Assert.NotNull(task);
+        }
+        #endregion
 
-        //[Fact]
-        //public async Task EditTask_ValidTask_ReturnsUpdatedTask()
-        //{
-        //    var taskToEdit = await _userTaskService.AddTaskAsync(_userTaskCreateDto);
+        #region EditTaskAsync
+        [Fact]
+        public async Task EditTaskAsync_ExistingTaskWithNull_ReturnsNullReferenceException()
+        {
+            // Arrange
+            UpdateUserTaskRequestDto updateTaskDto = null;
+            var existingUserId = Helper.ExistingUser.Id;
+            var existingTaskId = Helper.ExistingTask.Id;
 
-        //    UpdateUserTaskRequestDto taskToUpdate = new()
-        //    {
-        //        Title = taskToEdit.Title,
-        //        Status = taskToEdit.Status,
-        //        Priority = Priority.Medium
-        //    };
+            // Act
+            Func<Task> act = () => _userTaskService.EditTaskAsync(existingTaskId, updateTaskDto, existingUserId);
 
-        //    await _userTaskService.EditTaskAsync(taskToEdit.Id, taskToUpdate, existingUserId);
-        //    var editedTask = await _userTaskService.GetTaskByIdAsync(taskToEdit.Id, existingUserId);
+            // Assert
+            await Assert.ThrowsAsync<NullReferenceException>(act);
+        }
 
-        //    Assert.Equal(Priority.Medium, editedTask.Priority);
-        //}
-        //#endregion
+        [Theory]
+        [MemberData(nameof(UserIds))]
+        public async Task EditTaskAsync_TaskThatDoesNotExists_ReturnsNull(Guid userId)
+        {
+            // Arrange
+            var updateTaskDto = new UpdateUserTaskRequestDto
+            {
+                Title = "EditNonExistentTask",
+                Status = Status.Completed,
+                Priority = Priority.Low,
+                UserId = Helper.ExistingUser.Id
+            };
 
-        //#region DeleteTask
-        //[Fact]
-        //public async Task DeleteTask_TaskThatDoesNotExists_ReturnsNull()
-        //{
-        //    var deletedTask = await _userTaskService.DeleteTaskAsync(Guid.Empty, existingUserId);
+            // Act
+            var taskDto = await _userTaskService.EditTaskAsync(Guid.Empty, updateTaskDto, userId);
 
-        //    Assert.Null(deletedTask);
-        //}
+            // Assert
+            Assert.Null(taskDto);
+        }
 
-        //[Fact]
-        //public async void DeleteTask_TaskThatExists_ReturnsNull()
-        //{
-        //    var taskToAdd = _userTaskCreateDto;
-        //    var addedTask = await _userTaskService.AddTaskAsync(taskToAdd);
+        [Fact]
+        public async Task EditTaskAsync_ValidTask_ByExistingUser_ReturnsUpdatedTask()
+        {
+            // Arrange
+            var taskToUpdate = new UpdateUserTaskRequestDto
+            {
+                Title = "EditValidTask",
+                Status = Status.Completed,
+                Priority = Priority.Medium,
+                UserId = Helper.ExistingUser.Id
+            };
+            var existingUserId = Helper.ExistingUser.Id;
+            var existingTaskId = Helper.ExistingTask.Id;
 
-        //    await _userTaskService.DeleteTaskAsync(addedTask.Id, existingUserId);
-        //    var deletedTask = await _userTaskService.GetTaskByIdAsync(addedTask.Id, existingUserId);
+            // Act
+            await _userTaskService.EditTaskAsync(existingTaskId, taskToUpdate, existingUserId);
 
-        //    Assert.Null(deletedTask);
-        //}
-        //#endregion
+            // Assert
+            var editedTask = await _userTaskService.GetTaskByIdAsync(existingTaskId, existingUserId);
+            Assert.Equal(Priority.Medium, editedTask.Priority);
+        }
+
+        [Fact]
+        public async Task EditTaskAsync_ValidTask_ByNonExistentUser_ReturnsNotUpdatedTask()
+        {
+            // Arrange
+            var taskToUpdate = new UpdateUserTaskRequestDto
+            {
+                Title = "EditValidTask",
+                Status = Status.Completed,
+                Priority = Priority.Medium,
+                UserId = Helper.ExistingUser.Id
+            };
+            var nonExistentUserId = Guid.Empty;
+            var existingUserId = Helper.ExistingUser.Id;
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            await _userTaskService.EditTaskAsync(existingTaskId, taskToUpdate, nonExistentUserId);
+
+            // Assert
+            var editedTask = await _userTaskService.GetTaskByIdAsync(existingTaskId, existingUserId);
+            Assert.Equal(Priority.Low, editedTask.Priority);
+        }
+        #endregion
+
+        #region DeleteTaskAsync
+        [Theory]
+        [MemberData(nameof(UserIds))]
+        public async Task DeleteTaskAsync_TaskThatDoesNotExists_ReturnsNull(Guid userId)
+        {
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
+
+            // Act
+            var deletedTask = await _userTaskService.DeleteTaskAsync(nonExistentTaskId, userId);
+
+            // Assert
+            Assert.Null(deletedTask);
+        }
+
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatExists_ByExistingUser_ReturnsNull()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
+
+            // Act
+            await _userTaskService.DeleteTaskAsync(existingTaskId, existingUserId);
+
+            // Assert
+            var deletedTask = await _userTaskService.GetTaskByIdAsync(existingTaskId, existingUserId);
+            Assert.Null(deletedTask);
+        }
+
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatExists_ByNonExistentUser_ReturnsNotNull()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
+            var nonExistentUserId = Guid.Empty;
+
+            // Act
+            await _userTaskService.DeleteTaskAsync(existingTaskId, nonExistentUserId);
+
+            // Assert
+            var deletedTask = await _userTaskService.GetTaskByIdAsync(existingTaskId, existingUserId);
+            Assert.NotNull(deletedTask);
+        }
+        #endregion
     }
 }
