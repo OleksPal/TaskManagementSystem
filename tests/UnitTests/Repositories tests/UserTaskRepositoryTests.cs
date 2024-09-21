@@ -7,17 +7,13 @@ namespace TaskManagementSystem.UnitTests
 {
     public class UserTaskRepositoryTests
     {
-        protected readonly IUserTaskRepository _userTaskRepository;
-
-        protected readonly UserTask validTaskObject = new()
+        public static IEnumerable<object[]> UserIds => new List<object[]>
         {
-            Id = Guid.NewGuid(),
-            Title = "Test",
-            Status = Status.Completed,
-            Priority = Priority.Low,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
+            new object[] { Guid.Empty },
+            new object[] { Helper.ExistingUser.Id }
         };
+
+        protected readonly IUserTaskRepository _userTaskRepository;
 
         public UserTaskRepositoryTests()
         {
@@ -25,117 +21,242 @@ namespace TaskManagementSystem.UnitTests
                 ?? throw new ArgumentNullException(nameof(IUserTaskRepository));
         }
 
-        #region GetAll
+        #region GetAllAsync
         [Fact]
-        public async Task GetAll_ReturnsNotEmpty()
+        public async Task GetAllAsync_ByExistingUser_ReturnsNotEmpty()
         {
+            // Arrange
             var query = new QueryObject();
-            var taskList = await _userTaskRepository.GetAllAsync(Helper.ExistingUser.Id, query);
+            var existingUserId = Helper.ExistingUser.Id;
 
+            // Act
+            var taskList = await _userTaskRepository.GetAllAsync(existingUserId, query);
+
+            // Assert
             Assert.NotEmpty(taskList);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ByNonExistentUser_ReturnsEmpty()
+        {
+            // Arrange
+            var query = new QueryObject();
+            var nonExistentUserId = Guid.Empty;
+
+            // Act
+            var taskList = await _userTaskRepository.GetAllAsync(nonExistentUserId, query);
+
+            // Assert
+            Assert.Empty(taskList);
         }
         #endregion
 
-        #region GetById
-        [Fact]
-        public async Task GetById_TaskDoesNotExists_ReturnsNull()
+        #region GetByIdAsync
+        [Theory]
+        [MemberData(nameof(UserIds))]
+        public async Task GetByIdAsync_TaskDoesNotExists_ReturnsNull(Guid userId)
         {
-            var task = await _userTaskRepository.GetByIdAsync(Guid.Empty, Helper.ExistingUser.Id);
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
 
+            // Act
+            var task = await _userTaskRepository.GetByIdAsync(nonExistentTaskId, userId);
+
+            // Assert
             Assert.Null(task);
         }
 
         [Fact]
-        public async Task GetById_TaskExists_ReturnsNotNull()
+        public async Task GetByIdAsync_TaskExists_ByExistingUser_ReturnsNotNull()
         {
-            var task = await _userTaskRepository.GetByIdAsync(Helper.ExistingTask.Id, Helper.ExistingUser.Id);
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
 
+            // Act
+            var task = await _userTaskRepository.GetByIdAsync(existingTaskId, existingUserId);
+
+            // Assert
             Assert.NotNull(task);
         }
+
+        [Fact]
+        public async Task GetByIdAsync_TaskExists_ByNonExistentUser_ReturnsNull()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var nonExistentUserId = Guid.Empty;
+
+            // Act
+            var task = await _userTaskRepository.GetByIdAsync(existingTaskId, nonExistentUserId);
+
+            // Assert
+            Assert.Null(task);
+        }
         #endregion
 
-        #region Insert
+        #region InsertAsync
         [Fact]
-        public async Task Insert_Null_ReturnsArgumentNullException()
+        public async Task InsertAsync_Null_ReturnsArgumentNullException()
         {
+            // Arrange
             UserTask taskToInsert = null;
 
+            // Act
             Func<Task> act = () => _userTaskRepository.InsertAsync(taskToInsert);
 
+            // Assert
             await Assert.ThrowsAsync<NullReferenceException>(act);
         }
 
         [Fact]
-        public async Task Insert_ValidTask_ReturnsNotNull()
+        public async Task InsertAsync_TaskWithIdThatAlreadyExists_ReturnsArgumentException()
         {
-            var taskToInsert = validTaskObject;
+            // Arrange
+            UserTask taskToInsert = Helper.ExistingTask;
 
-            await _userTaskRepository.InsertAsync(taskToInsert);
-            var insertedTask = await _userTaskRepository.GetByIdAsync(taskToInsert.Id, Helper.ExistingUser.Id);
+            // Act
+            Func<Task> act = () => _userTaskRepository.InsertAsync(taskToInsert);
 
-            Assert.NotNull(insertedTask);
-        }
-        #endregion
-
-        #region Update
-        [Fact]
-        public async Task Update_Null_ReturnsNullReferenceException()
-        {
-            UserTask task = null;
-
-            Func<Task> act = () => _userTaskRepository.UpdateAsync(task);
-
-            await Assert.ThrowsAsync<NullReferenceException>(act);
+            // Assert
+            await Assert.ThrowsAsync<ArgumentException>(act);
         }
 
         [Fact]
-        public async Task Update_TaskThatDoesNotExists_ReturnsDbUpdateConcurrencyException()
+        public async Task InsertAsync_InvalidTaskWithoutRequiredProperties_ReturnsDbUpdateException()
         {
-            UserTask task = validTaskObject;
+            // Arrange
+            var taskToInsert = new UserTask();
 
-            Func<Task> act = () => _userTaskRepository.UpdateAsync(task);
+            // Act
+            Func<Task> act = () => _userTaskRepository.InsertAsync(taskToInsert);
 
-            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(act);
-        }
-
-        [Fact]
-        public async Task Update_ValidTaskWithDefaultValues_ReturnsDbUpdateException()
-        {
-            UserTask task = new UserTask();
-
-            Func<Task> act = () => _userTaskRepository.UpdateAsync(task);
-
+            // Assert
             await Assert.ThrowsAsync<DbUpdateException>(act);
         }
 
         [Fact]
-        public async Task Update_ValidTask_ReturnsUpdatedTask()
+        public async Task InsertAsync_ValidTask_ReturnsNotNull()
         {
-            Helper.ExistingTask.Priority = Priority.Medium;
+            // Arrange
+            var taskToInsert = new UserTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "ValidInsertTest",
+                Status = Status.InProgress,
+                Priority = Priority.Low,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                UserId = Helper.ExistingUser.Id
+            };
+            var existingUserId = Helper.ExistingUser.Id;
 
+            // Act
+            await _userTaskRepository.InsertAsync(taskToInsert);
+
+            // Assert
+            var insertedTask = await _userTaskRepository.GetByIdAsync(taskToInsert.Id, existingUserId);
+            Assert.NotNull(insertedTask);
+        }
+        #endregion
+
+        #region UpdateAsync
+        [Fact]
+        public async Task UpdateAsync_Null_ReturnsNullReferenceException()
+        {
+            // Arrange
+            UserTask taskToUpdate = null;
+
+            // Act
+            Func<Task> act = () => _userTaskRepository.UpdateAsync(taskToUpdate);
+
+            // Assert
+            await Assert.ThrowsAsync<NullReferenceException>(act);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_TaskThatDoesNotExists_ReturnsDbUpdateConcurrencyException()
+        {
+            // Arrange
+            UserTask taskToUpdate = new UserTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "UpdateNonExistingTaskTest",
+                Status = Status.InProgress,
+                Priority = Priority.Low,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                UserId = Helper.ExistingUser.Id
+            };
+
+            // Act
+            Func<Task> act = () => _userTaskRepository.UpdateAsync(taskToUpdate);
+
+            // Assert
+            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(act);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ValidTask_ReturnsUpdatedTask()
+        {
+            // Arrange
+            var existingUserId = Helper.ExistingUser.Id;
+            var existingTask = Helper.ExistingTask;
+            existingTask.Priority = Priority.Medium;
+
+            // Act
             await _userTaskRepository.UpdateAsync(Helper.ExistingTask);
-            var updatedTask = await _userTaskRepository.GetByIdAsync(Helper.ExistingTask.Id, Helper.ExistingUser.Id);
 
+            // Assert
+            var updatedTask = await _userTaskRepository.GetByIdAsync(existingTask.Id, existingUserId);
             Assert.Equal(Priority.Medium, updatedTask.Priority);
         }
         #endregion
 
-        #region Delete
-        [Fact]
-        public async Task Delete_TaskThatDoesNotExists_ReturnsNull()
+        #region DeleteAsync
+        [Theory]
+        [MemberData(nameof(UserIds))]
+        public async Task DeleteAsync_TaskThatDoesNotExists_ReturnsNull(Guid userId)
         {
-            var deletedTask = await _userTaskRepository.DeleteAsync(Guid.Empty, Helper.ExistingUser.Id);
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
 
+            // Act
+            var deletedTask = await _userTaskRepository.DeleteAsync(nonExistentTaskId, userId);
+
+            // Assert
             Assert.Null(deletedTask);
         }
 
         [Fact]
-        public async Task Delete_TaskThatExists_ReturnsNull()
+        public async Task DeleteAsync_TaskThatExists_ByExistingUser_ReturnsNull()
         {
-            await _userTaskRepository.DeleteAsync(Helper.ExistingTask.Id, Helper.ExistingUser.Id);
-            var deletedTask = await _userTaskRepository.GetByIdAsync(Helper.ExistingTask.Id, Helper.ExistingUser.Id);
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
 
+            // Act
+            await _userTaskRepository.DeleteAsync(existingTaskId, existingUserId);
+
+            // Assert
+            var deletedTask = await _userTaskRepository.GetByIdAsync(existingTaskId, existingUserId);
             Assert.Null(deletedTask);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_TaskThatExists_ByNonExistentUser_ReturnsNotDeletedTask()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+            var existingUserId = Helper.ExistingUser.Id;
+            var nonExistentUserId = Guid.Empty;
+
+            // Act
+            await _userTaskRepository.DeleteAsync(existingTaskId, nonExistentUserId);
+
+            // Assert
+            var deletedTask = await _userTaskRepository.GetByIdAsync(existingTaskId, existingUserId);
+            Assert.NotNull(deletedTask);
         }
         #endregion
     }
