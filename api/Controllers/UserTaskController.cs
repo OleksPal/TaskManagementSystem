@@ -26,7 +26,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTasks([FromQuery] QueryObject query)
+        public async Task<IActionResult> GetAllTasksAsync([FromQuery] QueryObject query)
         {
             var user = await GetUser();
 
@@ -42,7 +42,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpGet("{taskId:guid}")]
-        public async Task<IActionResult> GetTask([FromRoute] Guid taskId)
+        public async Task<IActionResult> GetTaskAsync([FromRoute] Guid taskId)
         {
             var user = await GetUser();
 
@@ -58,7 +58,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody] CreateUserTaskRequestDto createTaskDto)
+        public async Task<IActionResult> CreateTaskAsync([FromBody] CreateUserTaskRequestDto createTaskDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -67,12 +67,12 @@ namespace TaskManagementSystem.Controllers
 
             _logger.LogInformation($"Task with id {taskDto.Id} has been created");
 
-            return CreatedAtAction(nameof(GetTask), new { taskId = taskDto.Id }, taskDto);
+            return CreatedAtAction(nameof(GetTaskAsync), new { taskId = taskDto.Id }, taskDto);
         }
 
         [HttpPut]
         [Route("{id:guid}")]
-        public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
+        public async Task<IActionResult> UpdateTaskAsync([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
         {
             var user = await GetUser();
 
@@ -91,7 +91,7 @@ namespace TaskManagementSystem.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
-        public async Task<IActionResult> DeleteTask([FromRoute] Guid id)
+        public async Task<IActionResult> DeleteTaskAsync([FromRoute] Guid id)
         {
             var user = await GetUser();
 
@@ -108,7 +108,7 @@ namespace TaskManagementSystem.Controllers
             return NoContent();
         }
 
-        private async Task<User> GetUser()
+        protected virtual async Task<User> GetUser()
         {
             var userName = User.GetUserName();
             return await _userManager.FindByNameAsync(userName);
