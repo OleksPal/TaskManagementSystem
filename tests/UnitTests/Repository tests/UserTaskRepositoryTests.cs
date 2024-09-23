@@ -8,12 +8,6 @@ namespace TaskManagementSystem.UnitTests
     [Collection("TestCollection")]
     public class UserTaskRepositoryTests
     {
-        public static IEnumerable<object[]> UserIds => new List<object[]>
-        {
-            new object[] { Guid.Empty },
-            new object[] { Helper.ExistingUser.Id }
-        };
-
         protected readonly IUserTaskRepository _userTaskRepository;
 
         public UserTaskRepositoryTests()
@@ -54,7 +48,7 @@ namespace TaskManagementSystem.UnitTests
 
         #region GetByIdAsync
         [Theory]
-        [MemberData(nameof(UserIds))]
+        [MemberData(nameof(Helper.UserIds), MemberType = typeof(Helper))]
         public async Task GetByIdAsync_TaskDoesNotExists_ReturnsNull(Guid userId)
         {
             // Arrange
@@ -216,7 +210,7 @@ namespace TaskManagementSystem.UnitTests
 
         #region DeleteAsync
         [Theory]
-        [MemberData(nameof(UserIds))]
+        [MemberData(nameof(Helper.UserIds), MemberType = typeof(Helper))]
         public async Task DeleteAsync_TaskThatDoesNotExists_ReturnsNull(Guid userId)
         {
             // Arrange

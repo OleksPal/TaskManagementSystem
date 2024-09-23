@@ -16,6 +16,12 @@ namespace TaskManagementSystem.UnitTests
         public static User ExistingUser { get; private set; }
         public static UserTask ExistingTask { get; private set; }
 
+        public static IEnumerable<object[]> UserIds => new List<object[]>
+        {
+            new object[] { Guid.Empty },
+            new object[] { Helper.ExistingUser.Id }
+        };
+
         private static IServiceProvider Provider()
         {
             var services = new ServiceCollection();
