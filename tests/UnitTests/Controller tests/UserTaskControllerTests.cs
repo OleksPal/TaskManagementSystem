@@ -7,7 +7,6 @@ using TaskManagementSystem.Controllers;
 using TaskManagementSystem.DTOs;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
-using TaskManagementSystem.Services;
 using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
@@ -169,7 +168,6 @@ namespace TaskManagementSystem.UnitTests
                 Priority = Priority.Low,
                 UserId = Helper.ExistingUser.Id
             };
-            var existingUserId = Helper.ExistingUser.Id;
 
             //Act
             var actionResult = await _userTaskController.CreateTaskAsync(createTaskDto);
@@ -187,7 +185,6 @@ namespace TaskManagementSystem.UnitTests
         {
             // Arrange
             UpdateUserTaskRequestDto updateTaskDto = null;
-            var existingUserId = Helper.ExistingUser.Id;
             var existingTaskId = Helper.ExistingTask.Id;
 
             // Act
@@ -198,7 +195,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByExistingUser_ReturnsNull()
+        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByExistingUser_ReturnsNotFound()
         {
             // Arrange
             var updateTaskDto = new UpdateUserTaskRequestDto
@@ -218,7 +215,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByNonExistentUser_ReturnsNull()
+        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByNonExistentUser_ReturnsNotFound()
         {
             // Arrange
             var updateTaskDto = new UpdateUserTaskRequestDto
@@ -283,5 +280,62 @@ namespace TaskManagementSystem.UnitTests
             Assert.IsType<NotFoundResult>(actionResult);
         }
         #endregion
+
+        #region DeleteTaskAsync
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatDoesNotExists_ByExistingUser_ReturnsNotFound()
+        {
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
+
+            // Act
+            var actionResult = await _userTaskController.DeleteTaskAsync(nonExistentTaskId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatDoesNotExists_ByNonExistentUser_ReturnsNotFound()
+        {
+            // Arrange
+            var nonExistentTaskId = Guid.Empty;
+
+            // Act
+            var actionResult = await _userTaskController.DeleteTaskAsync(nonExistentTaskId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatExists_ByExistingUser_ReturnsNoContent()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            var actionResult = await _userTaskController.DeleteTaskAsync(existingTaskId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task DeleteTaskAsync_TaskThatExists_ByNonExistentUser_ReturnsNotFound()
+        {
+            // Arrange
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            await _userTaskController.GetTaskAsync(existingTaskId);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userTaskController.DeleteTaskAsync(existingTaskId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+        #endregion
+
     }
 }
