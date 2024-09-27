@@ -159,7 +159,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task AddTaskAsync_ValidTask_ReturnsNotNull()
+        public async Task CreateTaskAsync_ValidTask_ReturnsNotNull()
         {
             // Arrange
             var createTaskDto = new CreateUserTaskRequestDto
@@ -178,6 +178,109 @@ namespace TaskManagementSystem.UnitTests
             var okResult = actionResult as ObjectResult;
             var taskDto = okResult.Value as UserTaskDto;
             Assert.NotNull(taskDto);
+        }
+        #endregion
+
+        #region UpdateTaskAsync
+        [Fact]
+        public async Task UpdateTaskAsync_ExistingTaskWithNull_ReturnsNullReferenceException()
+        {
+            // Arrange
+            UpdateUserTaskRequestDto updateTaskDto = null;
+            var existingUserId = Helper.ExistingUser.Id;
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            Func<Task> act = () => _userTaskController.UpdateTaskAsync(existingTaskId, updateTaskDto);
+
+            // Assert
+            await Assert.ThrowsAsync<NullReferenceException>(act);
+        }
+
+        [Fact]
+        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByExistingUser_ReturnsNull()
+        {
+            // Arrange
+            var updateTaskDto = new UpdateUserTaskRequestDto
+            {
+                Title = "EditNonExistentTask",
+                Status = Status.Completed,
+                Priority = Priority.Low,
+                UserId = Helper.ExistingUser.Id
+            };
+            var nonExistentTaskId = Guid.Empty;
+
+            // Act
+            var actionResult = await _userTaskController.UpdateTaskAsync(nonExistentTaskId, updateTaskDto);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task UpdateTaskAsync_TaskThatDoesNotExists_ByNonExistentUser_ReturnsNull()
+        {
+            // Arrange
+            var updateTaskDto = new UpdateUserTaskRequestDto
+            {
+                Title = "EditNonExistentTask",
+                Status = Status.Completed,
+                Priority = Priority.Low,
+                UserId = Helper.ExistingUser.Id
+            };
+            var nonExistentTaskId = Guid.Empty;
+
+            // Act
+            await _userTaskController.UpdateTaskAsync(nonExistentTaskId, updateTaskDto);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userTaskController.UpdateTaskAsync(nonExistentTaskId, updateTaskDto);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task UpdateTaskAsync_ValidTask_ByExistingUser_ReturnsUpdatedTask()
+        {
+            // Arrange
+            var taskToUpdate = new UpdateUserTaskRequestDto
+            {
+                Title = "EditValidTask",
+                Status = Status.Completed,
+                Priority = Priority.Medium,
+                UserId = Helper.ExistingUser.Id
+            };
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            var actionResult = await _userTaskController.UpdateTaskAsync(existingTaskId, taskToUpdate);
+
+            // Assert
+            var okResult = actionResult as OkObjectResult;
+            var taskDto = okResult.Value as UserTaskDto;
+            Assert.Equal(Priority.Medium, taskDto.Priority);
+        }
+
+        [Fact]
+        public async Task UpdateTaskAsync_ValidTask_ByNonExistentUser_ReturnsNotFound()
+        {
+            // Arrange
+            var taskToUpdate = new UpdateUserTaskRequestDto
+            {
+                Title = "EditValidTask",
+                Status = Status.Completed,
+                Priority = Priority.Medium,
+                UserId = Helper.ExistingUser.Id
+            };
+            var existingTaskId = Helper.ExistingTask.Id;
+
+            // Act
+            await _userTaskController.UpdateTaskAsync(existingTaskId, taskToUpdate);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userTaskController.UpdateTaskAsync(existingTaskId, taskToUpdate);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(actionResult);
         }
         #endregion
     }

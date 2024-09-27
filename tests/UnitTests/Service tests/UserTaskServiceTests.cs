@@ -168,9 +168,10 @@ namespace TaskManagementSystem.UnitTests
                 Priority = Priority.Low,
                 UserId = Helper.ExistingUser.Id
             };
+            var nonExistentTaskId = Guid.Empty;
 
             // Act
-            var taskDto = await _userTaskService.EditTaskAsync(Guid.Empty, updateTaskDto, userId);
+            var taskDto = await _userTaskService.EditTaskAsync(nonExistentTaskId, updateTaskDto, userId);
 
             // Assert
             Assert.Null(taskDto);
