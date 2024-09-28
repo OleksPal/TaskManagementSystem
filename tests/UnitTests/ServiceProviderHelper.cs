@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
 using Moq;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Models;
@@ -84,6 +87,26 @@ namespace TaskManagementSystem.UnitTests
             mgr.Setup(x => x.UpdateAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
 
             return mgr;
+        }
+
+        public static Mock<SignInManager<User>> MockSignInManager(UserManager<User> userManager)
+        {
+            return new Mock<SignInManager<User>>(userManager, Mock.Of<IHttpContextAccessor>(),
+                Mock.Of<IUserClaimsPrincipalFactory<User>>(), null, null, null, null);
+        }
+
+        public static Mock<TokenService> MockTokenService()
+        {
+            var inMemorySettings = new Dictionary<string, string> {
+                {"JWT:SigninKey", "fcksVmo1bfrcdXIHnyomagx7bXghbhfs8PcIz0sshafmjhjgmIkeg34fq44fd34grtttmjikkh3419F34Fjtk36atksAFafnaFiafdo34f"}
+            };
+
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+            var tokenService = new Mock<TokenService>(config);
+
+            return tokenService;
         }
     }        
 }
