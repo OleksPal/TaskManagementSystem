@@ -1,16 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 using TaskManagementSystem.Controllers;
-using TaskManagementSystem.DTOs;
 using TaskManagementSystem.DTOs.User;
-using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
-using TaskManagementSystem.Services;
-using TaskManagementSystem.Services.Interfaces;
 
 namespace TaskManagementSystem.UnitTests
 {
@@ -44,6 +37,41 @@ namespace TaskManagementSystem.UnitTests
             // Assert
             var serverError = actionResult as ObjectResult;
             Assert.Equal(errorMessage, serverError.Value);
+        }
+
+        [Fact]
+        public async Task Register_InvalidUserWithoutRequiredProperties_ReturnsStatusCode500()
+        {
+            // Arrange
+            var registerDto = new RegisterDto();
+            var errorMessage = "Value cannot be null. (Parameter 'value')";
+
+            // Act
+            var actionResult = await _userController.Register(registerDto);
+
+            // Assert
+            var serverError = actionResult as ObjectResult;
+            Assert.Equal(errorMessage, serverError.Value);
+        }
+
+        [Fact]
+        public async Task Register_ValidUser_ReturnsNewUserDto()
+        {
+            // Arrange
+            var registerDto = new RegisterDto
+            {
+                Email = "validregister@g.c",
+                UserName = "ValidUserRegister",
+                Password = "!1Qqwertyuiop"
+            };
+
+            // Act
+            var actionResult = await _userController.Register(registerDto);
+
+            // Assert
+            var okResult = actionResult as ObjectResult;
+            var newUserDto = okResult.Value as NewUserDto;
+            Assert.NotNull(newUserDto);
         }
         #endregion
     }
