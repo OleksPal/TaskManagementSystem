@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 using TaskManagementSystem.Controllers;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
@@ -14,13 +15,27 @@ namespace TaskManagementSystem.UnitTests
 
         public UserControllerTests()
         {
-            var userManagerMock = Helper.MockUserManager<User>([Helper.ExistingUser]);
+            var userManagerMock = Helper.MockUserManager<User>([new User()]);
             var tokenServiceMock = Helper.MockTokenService();
             var signInManagerMock = Helper.MockSignInManager(userManagerMock.Object);
             var loggerMock = new Mock<ILogger<UserController>>();
 
-            _userController = new UserController(userManagerMock.Object, tokenServiceMock.Object,
+            var userControllerMock = new Mock<UserController>(userManagerMock.Object, tokenServiceMock.Object,
                 signInManagerMock.Object, loggerMock.Object);
+
+            userControllerMock.CallBase = true;
+
+            userControllerMock.Protected()
+                .SetupSequence<Task<User>>("GetUserByEmail")
+                .Returns(Task.FromResult(new User()))
+                .Returns(Task.FromResult(new User { Id = Guid.Empty }));
+
+            userControllerMock.Protected()
+                .SetupSequence<Task<User>>("GetUserByUsername")
+                .Returns(Task.FromResult(new User()))
+                .Returns(Task.FromResult(new User { Id = Guid.Empty }));            
+
+            _userController = userControllerMock.Object;
         }
 
         #region Register

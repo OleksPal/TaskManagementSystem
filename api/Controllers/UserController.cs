@@ -83,8 +83,8 @@ namespace TaskManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == loginDto.UserName.ToLower());
+            
+            var user = await GetUserByUsername(loginDto.UserName);
 
             if (user is null)
                 return Unauthorized("Invalid username");
@@ -114,7 +114,7 @@ namespace TaskManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+            var user = await GetUserByEmail(loginDto.Email);
 
             if (user is null)
                 return Unauthorized("Invalid email");
@@ -163,6 +163,16 @@ namespace TaskManagementSystem.Controllers
             }
 
             return StatusCode(500, passwordChangeResult.Errors);
+        }
+
+        protected virtual async Task<User> GetUserByEmail(string email)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(user => user.Email == email);
+        }
+
+        protected virtual async Task<User> GetUserByUsername(string userName)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == userName.ToLower());
         }
     }
 }

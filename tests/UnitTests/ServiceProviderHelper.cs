@@ -84,8 +84,6 @@ namespace TaskManagementSystem.UnitTests
             mgr.Object.UserValidators.Add(new UserValidator<TUser>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<TUser>());
 
-            mgr.Setup(x => x.Users).Returns(userList.AsQueryable());
-
             mgr.Setup(x => x.AddToRoleAsync(It.IsAny<TUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
             mgr.Setup(x => x.DeleteAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
             mgr.Setup(x => x.CreateAsync(It.IsAny<TUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback<TUser, string>((x, y) => userList.Add(x));
@@ -96,8 +94,13 @@ namespace TaskManagementSystem.UnitTests
 
         public static Mock<SignInManager<User>> MockSignInManager(UserManager<User> userManager)
         {
-            return new Mock<SignInManager<User>>(userManager, Mock.Of<IHttpContextAccessor>(),
+            var signInManagerMock = new Mock<SignInManager<User>>(userManager, Mock.Of<IHttpContextAccessor>(),
                 Mock.Of<IUserClaimsPrincipalFactory<User>>(), null, null, null, null);
+
+            signInManagerMock.Setup(x => x.CheckPasswordSignInAsync(It.IsAny<User>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(SignInResult.Success);
+
+            return signInManagerMock;
         }
 
         public static Mock<TokenService> MockTokenService()
