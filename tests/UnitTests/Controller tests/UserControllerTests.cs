@@ -54,7 +54,7 @@ namespace TaskManagementSystem.UnitTests
         {
             // Arrange
             RegisterDto registerDto = null;
-            var errorMessage = "Object reference not set to an instance of an object.";
+            var errorMessage = "Value cannot be null. (Parameter 'model')";
 
             // Act
             var actionResult = await _userController.Register(registerDto);
@@ -69,14 +69,15 @@ namespace TaskManagementSystem.UnitTests
         {
             // Arrange
             var registerDto = new RegisterDto();
-            var errorMessage = "Value cannot be null. (Parameter 'value')";
+            var errorMessage = " [[\"Email\"] = [\"The Email field is required.\"], [\"Password\"] = [\"The Password field is required.\"], [\"UserName\"] = [\"The UserName field is required.\"]]";
 
             // Act
             var actionResult = await _userController.Register(registerDto);
 
             // Assert
-            var serverError = actionResult as ObjectResult;
-            Assert.Equal(errorMessage, serverError.Value);
+            var badRequest = actionResult as BadRequestObjectResult;
+            var errorsNumber = (badRequest.Value as SerializableError).Count;
+            Assert.Equal(3, errorsNumber);
         }
 
         [Fact]

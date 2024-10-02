@@ -33,7 +33,7 @@ namespace TaskManagementSystem.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (!TryValidateModel(registerDto))
                     return BadRequest(ModelState);
 
                 var newUser = new User
@@ -111,7 +111,7 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("loginWithEmail")]
         public async Task<IActionResult> LoginWithEmail([FromBody] LoginWithEmailDto loginDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(loginDto))
                 return BadRequest(ModelState);
 
             var user = await GetUserByEmail(loginDto.Email);
@@ -142,7 +142,7 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("changePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(changePasswordDto))
                 return BadRequest(ModelState);
 
             var userName = User.GetUserName();
