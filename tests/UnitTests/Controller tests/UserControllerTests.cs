@@ -13,29 +13,39 @@ namespace TaskManagementSystem.UnitTests
     {
         protected readonly UserController _userController;
 
+        protected readonly User ExistingUser = new User
+        {
+            Id = Guid.NewGuid(),
+            UserName = "ExistingUserControllerTest",
+            Email = "exist@mail.com"
+        };
+
         public UserControllerTests()
         {
-            var userManagerMock = Helper.MockUserManager<User>([new User()]);
+            var userManagerMock = Helper.MockUserManager<User>([ExistingUser]);
             var tokenServiceMock = Helper.MockTokenService();
             var signInManagerMock = Helper.MockSignInManager(userManagerMock.Object);
             var loggerMock = new Mock<ILogger<UserController>>();
 
             var userControllerMock = new Mock<UserController>(userManagerMock.Object, tokenServiceMock.Object,
-                signInManagerMock.Object, loggerMock.Object);
+                signInManagerMock.Object, loggerMock.Object);            
 
             userControllerMock.CallBase = true;
 
             userControllerMock.Protected()
-                .SetupSequence<Task<User>>("GetUserByEmail")
-                .Returns(Task.FromResult(new User()))
-                .Returns(Task.FromResult(new User { Id = Guid.Empty }));
+                .SetupSequence<Task<User>>("GetUserByEmail", ItExpr.IsAny<string>())
+                .Returns(Task.FromResult(ExistingUser))
+                .Returns(Task.FromResult<User>(null));
 
             userControllerMock.Protected()
-                .SetupSequence<Task<User>>("GetUserByUsername")
-                .Returns(Task.FromResult(new User()))
-                .Returns(Task.FromResult(new User { Id = Guid.Empty }));            
+                .SetupSequence<Task<User>>("GetUserByUsername", ItExpr.IsAny<string>())
+                .Returns(Task.FromResult(ExistingUser))
+                .Returns(Task.FromResult<User>(null));            
 
             _userController = userControllerMock.Object;
+
+            var objectValidator = new TestingObjectValidator { Controller = _userController };
+            _userController.ObjectValidator = objectValidator;
         }
 
         #region Register
@@ -75,8 +85,8 @@ namespace TaskManagementSystem.UnitTests
             // Arrange
             var registerDto = new RegisterDto
             {
-                Email = "validregister@g.c",
-                UserName = "ValidUserRegister",
+                Email = ExistingUser.Email,
+                UserName = ExistingUser.UserName,
                 Password = "!1Qqwertyuiop"
             };
 
@@ -92,50 +102,38 @@ namespace TaskManagementSystem.UnitTests
 
         #region LoginWithUsername
         [Fact]
-        public async Task LoginWithUsername_Null_ReturnsStatusCode500()
+        public async Task LoginWithUsername_Null_ReturnsArgumentNullException()
         {
             // Arrange
             LoginWithUsernameDto loginDto = null;
-            var errorMessage = "Object reference not set to an instance of an object.";
 
             // Act
-            var actionResult = await _userController.LoginWithUsername(loginDto);
+            Func<Task> act = () => _userController.LoginWithUsername(loginDto);
 
             // Assert
-            var serverError = actionResult as ObjectResult;
-            Assert.Equal(errorMessage, serverError.Value);
+            await Assert.ThrowsAsync<ArgumentNullException>(act);
         }
 
         [Fact]
-        public async Task LoginWithUsername_InvalidUserWithoutRequiredProperties_ReturnsStatusCode500()
+        public async Task LoginWithUsername_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            LoginWithUsernameDto loginDto = null;
-            var errorMessage = "Value cannot be null. (Parameter 'value')";
+            var loginDto = new LoginWithUsernameDto();
 
             // Act
             var actionResult = await _userController.LoginWithUsername(loginDto);
 
             // Assert
-            var serverError = actionResult as ObjectResult;
-            Assert.Equal(errorMessage, serverError.Value);
+            Assert.IsType<BadRequestObjectResult>(actionResult);
         }
 
         [Fact]
         public async Task LoginWithUsername_ValidUser_ReturnsNewUserDto()
         {
             // Arrange
-            var registerDto = new RegisterDto
-            {
-                Email = "validregister@g.c",
-                UserName = "ValidUserRegister",
-                Password = "!1Qqwertyuiop"
-            };
-            await _userController.Register(registerDto);
-
             var loginDto = new LoginWithUsernameDto
             {
-                UserName = "ValidUserRegister",
+                UserName = ExistingUser.UserName,
                 Password = "!1Qqwertyuiop"
             };
 

@@ -29,7 +29,7 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             try
             {
@@ -81,9 +81,9 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("loginWithUsername")]
         public async Task<IActionResult> LoginWithUsername([FromBody] LoginWithUsernameDto loginDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(loginDto))
                 return BadRequest(ModelState);
-            
+
             var user = await GetUserByUsername(loginDto.UserName);
 
             if (user is null)

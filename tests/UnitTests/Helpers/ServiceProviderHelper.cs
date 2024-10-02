@@ -20,6 +20,7 @@ namespace TaskManagementSystem.UnitTests
     {
         public static User ExistingUser { get; private set; }
         public static UserTask ExistingTask { get; private set; }
+        private static string SignInKeyForTesting = "fcksVmo1bfrcdXIHnyomagx7bXghbhfs8PcIz0sshafmjhjgmIkeg34fq44fd34grtttmjikkh3419F34Fjtk36atksAFafnaFiafdo34f";
 
         public static IEnumerable<object[]> UserIds => new List<object[]>
         {
@@ -106,7 +107,7 @@ namespace TaskManagementSystem.UnitTests
         public static Mock<TokenService> MockTokenService()
         {
             var inMemorySettings = new Dictionary<string, string> {
-                {"JWT:SigninKey", "fcksVmo1bfrcdXIHnyomagx7bXghbhfs8PcIz0sshafmjhjgmIkeg34fq44fd34grtttmjikkh3419F34Fjtk36atksAFafnaFiafdo34f"}
+                {"JWT:SigninKey", SignInKeyForTesting}
             };
 
             var config = new ConfigurationBuilder()
