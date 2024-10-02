@@ -34,6 +34,9 @@ namespace TaskManagementSystem.UnitTests
                 .Returns(Task.FromResult(new User { Id = Guid.Empty }));
 
             _userTaskController = userTaskControllerMock.Object;
+
+            var objectValidator = new TestingObjectValidator { Controller = _userTaskController };
+            _userTaskController.ObjectValidator = objectValidator;
         }
 
         #region GetAllTasksAsync
@@ -132,7 +135,7 @@ namespace TaskManagementSystem.UnitTests
 
         #region CreateTaskAsync
         [Fact]
-        public async Task CreteTaskAsync_Null_ReturnsNullReferenceException()
+        public async Task CreteTaskAsync_Null_ReturnsArgumentNullException()
         {
             // Arrange
             CreateUserTaskRequestDto createTaskDto = null;
@@ -141,20 +144,20 @@ namespace TaskManagementSystem.UnitTests
             Func<Task> act = () => _userTaskController.CreateTaskAsync(createTaskDto);
 
             // Assert
-            await Assert.ThrowsAsync<NullReferenceException>(act);
+            await Assert.ThrowsAsync<ArgumentNullException>(act);
         }
 
         [Fact]
-        public async Task CreateTaskAsync_InvalidTaskWithoutRequiredProperties_ReturnsDbUpdateException()
+        public async Task CreateTaskAsync_InvalidTaskWithoutRequiredProperties_ReturnsBadRequest()
         {
             // Arrange
             CreateUserTaskRequestDto createTaskDto = new();
 
             // Act
-            Func<Task> act = () => _userTaskController.CreateTaskAsync(createTaskDto);
+            var actionResult = await _userTaskController.CreateTaskAsync(createTaskDto);
 
             // Assert
-            await Assert.ThrowsAsync<DbUpdateException>(act);
+            Assert.IsType<BadRequestObjectResult>(actionResult);
         }
 
         [Fact]
@@ -181,7 +184,7 @@ namespace TaskManagementSystem.UnitTests
 
         #region UpdateTaskAsync
         [Fact]
-        public async Task UpdateTaskAsync_ExistingTaskWithNull_ReturnsNullReferenceException()
+        public async Task UpdateTaskAsync_ExistingTaskWithNull_ReturnsArgumentNullException()
         {
             // Arrange
             UpdateUserTaskRequestDto updateTaskDto = null;
@@ -191,7 +194,7 @@ namespace TaskManagementSystem.UnitTests
             Func<Task> act = () => _userTaskController.UpdateTaskAsync(existingTaskId, updateTaskDto);
 
             // Assert
-            await Assert.ThrowsAsync<NullReferenceException>(act);
+            await Assert.ThrowsAsync<ArgumentNullException>(act);
         }
 
         [Fact]

@@ -69,7 +69,6 @@ namespace TaskManagementSystem.UnitTests
         {
             // Arrange
             var registerDto = new RegisterDto();
-            var errorMessage = " [[\"Email\"] = [\"The Email field is required.\"], [\"Password\"] = [\"The Password field is required.\"], [\"UserName\"] = [\"The UserName field is required.\"]]";
 
             // Act
             var actionResult = await _userController.Register(registerDto);

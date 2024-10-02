@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.DTOs;
+using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Extensions;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
@@ -60,7 +61,7 @@ namespace TaskManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTaskAsync([FromBody] CreateUserTaskRequestDto createTaskDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(createTaskDto))
                 return BadRequest(ModelState);
 
             var taskDto = await _userTaskService.AddTaskAsync(createTaskDto);
@@ -74,6 +75,9 @@ namespace TaskManagementSystem.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateTaskAsync([FromRoute] Guid id, [FromBody] UpdateUserTaskRequestDto updateTaskDto)
         {
+            if (!TryValidateModel(updateTaskDto))
+                return BadRequest(ModelState);
+
             var user = await GetUser();
 
             if (user is null)
