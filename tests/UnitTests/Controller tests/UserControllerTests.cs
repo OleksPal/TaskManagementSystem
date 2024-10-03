@@ -128,7 +128,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task LoginWithUsername_ValidUser_ReturnsNewUserDto()
+        public async Task LoginWithUsername_ValidUser_UserExists_ReturnsNewUserDto()
         {
             // Arrange
             var loginDto = new LoginWithUsernameDto
@@ -144,6 +144,25 @@ namespace TaskManagementSystem.UnitTests
             var okResult = actionResult as ObjectResult;
             var newUserDto = okResult.Value as NewUserDto;
             Assert.NotNull(newUserDto);
+        }
+
+        [Fact]
+        public async Task LoginWithUsername_ValidUser_UserDoesNotExists_ReturnsNewUserDto()
+        {
+            // Arrange
+            var loginDto = new LoginWithUsernameDto
+            {
+                UserName = ExistingUser.UserName,
+                Password = "!1Qqwertyuiop"
+            };
+
+            // Act
+            await _userController.LoginWithUsername(loginDto);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userController.LoginWithUsername(loginDto);
+
+            // Assert
+            Assert.IsType<UnauthorizedObjectResult>(actionResult);
         }
         #endregion
     }
