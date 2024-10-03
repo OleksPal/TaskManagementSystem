@@ -1,4 +1,7 @@
 # TaskManagementSystem
+
+[![.NET](https://github.com/OleksPal/TaskManagementSystem/actions/workflows/dotnet.yml/badge.svg)](https://github.com/OleksPal/TaskManagementSystem/actions/workflows/dotnet.yml)
+
 .NET backend service that manages a simple task management system with user authentication.
 
 ## Prerequirements
