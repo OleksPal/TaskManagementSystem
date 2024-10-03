@@ -165,5 +165,71 @@ namespace TaskManagementSystem.UnitTests
             Assert.IsType<UnauthorizedObjectResult>(actionResult);
         }
         #endregion
+
+        #region LoginWithEmail
+        [Fact]
+        public async Task LoginWithEmail_Null_ReturnsArgumentNullException()
+        {
+            // Arrange
+            LoginWithEmailDto loginDto = null;
+
+            // Act
+            Func<Task> act = () => _userController.LoginWithEmail(loginDto);
+
+            // Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(act);
+        }
+
+        [Fact]
+        public async Task LoginWithEmail_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            var loginDto = new LoginWithEmailDto();
+
+            // Act
+            var actionResult = await _userController.LoginWithEmail(loginDto);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task LoginWithEmail_ValidUser_UserExists_ReturnsNewUserDto()
+        {
+            // Arrange
+            var loginDto = new LoginWithEmailDto
+            {
+                Email = ExistingUser.Email,
+                Password = "!1Qqwertyuiop"
+            };
+
+            // Act
+            var actionResult = await _userController.LoginWithEmail(loginDto);
+
+            // Assert
+            var okResult = actionResult as ObjectResult;
+            var newUserDto = okResult.Value as NewUserDto;
+            Assert.NotNull(newUserDto);
+        }
+
+        [Fact]
+        public async Task LoginWithEmail_ValidUser_UserDoesNotExists_ReturnsNewUserDto()
+        {
+            // Arrange
+            var loginDto = new LoginWithEmailDto
+            {
+                Email = ExistingUser.Email,
+                Password = "!1Qqwertyuiop"
+            };
+
+            // Act
+            await _userController.LoginWithEmail(loginDto);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userController.LoginWithEmail(loginDto);
+
+            // Assert
+            Assert.IsType<UnauthorizedObjectResult>(actionResult);
+        }
+        #endregion
     }
 }
