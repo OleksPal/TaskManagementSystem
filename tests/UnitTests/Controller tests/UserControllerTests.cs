@@ -2,9 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using System.Security.Claims;
 using TaskManagementSystem.Controllers;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
+using TaskManagementSystem.UnitTests.Extensions;
+using Xunit.Sdk;
 
 namespace TaskManagementSystem.UnitTests
 {
@@ -40,12 +43,14 @@ namespace TaskManagementSystem.UnitTests
             userControllerMock.Protected()
                 .SetupSequence<Task<User>>("GetUserByUsername", ItExpr.IsAny<string>())
                 .Returns(Task.FromResult(ExistingUser))
-                .Returns(Task.FromResult<User>(null));            
+                .Returns(Task.FromResult<User>(null));
 
             _userController = userControllerMock.Object;
 
             var objectValidator = new TestingObjectValidator { Controller = _userController };
             _userController.ObjectValidator = objectValidator;
+
+            _userController.InitializeClaims(new Claim(ClaimTypes.GivenName, ExistingUser.UserName));
         }
 
         #region Register
@@ -65,7 +70,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task Register_InvalidUserWithoutRequiredProperties_ReturnsStatusCode500()
+        public async Task Register_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
         {
             // Arrange
             var registerDto = new RegisterDto();
@@ -213,7 +218,7 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task LoginWithEmail_ValidUser_UserDoesNotExists_ReturnsNewUserDto()
+        public async Task LoginWithEmail_ValidUser_UserDoesNotExists_ReturnsUnauthorizedResult()
         {
             // Arrange
             var loginDto = new LoginWithEmailDto
@@ -229,6 +234,95 @@ namespace TaskManagementSystem.UnitTests
 
             // Assert
             Assert.IsType<UnauthorizedObjectResult>(actionResult);
+        }
+        #endregion
+
+        #region ChangePassword
+        [Fact]
+        public async Task ChangePassword_Null_ReturnsArgumentNullException()
+        {
+            // Arrange
+            ChangePasswordDto changePasswordDto = null;
+
+            // Act
+            Func<Task> act = () => _userController.ChangePassword(changePasswordDto);
+
+            // Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(act);
+        }
+
+        [Fact]
+        public async Task ChangePassword_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            var changePasswordDto = new ChangePasswordDto();
+
+            // Act
+            var actionResult = await _userController.ChangePassword(changePasswordDto);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task ChangePassword_PasswordDontMatch_ReturnsOkResult()
+        {
+            // Arrange
+            var changePasswordDto = new ChangePasswordDto
+            {
+                OldPassword = "!1Qqwertyuiop",
+                NewPassword = "!1Qqwertyuiop",
+                ConfirmPassword = "!2Qqwertyuiop"
+            };
+            var expectedErrorMessage = "The new password and confirmation password do not match.";
+
+            // Act
+            var actionResult = await _userController.ChangePassword(changePasswordDto);
+
+            // Assert
+            var badRequest = actionResult as BadRequestObjectResult;
+            var errorMessages = (badRequest.Value as SerializableError).Values.FirstOrDefault();
+            var passwordErrorMessage = (errorMessages as string[]).FirstOrDefault();
+            Assert.Equal(expectedErrorMessage, passwordErrorMessage);
+        }
+
+        [Fact]
+        public async Task ChangePassword_ValidDto_UserExists_ReturnsOkResult()
+        {
+            // Arrange
+            var changePasswordDto = new ChangePasswordDto
+            {
+                OldPassword = "!1Qqwertyuiop",
+                NewPassword = "!2Qqwertyuiop",
+                ConfirmPassword = "!2Qqwertyuiop"
+            };
+
+            // Act
+            var actionResult = await _userController.ChangePassword(changePasswordDto);
+
+            // Assert
+            Assert.IsType<OkObjectResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task ChangePassword_ValidDto_UserDoesNotExists_ReturnsStatusCode500()
+        {
+            // Arrange
+            var changePasswordDto = new ChangePasswordDto
+            {
+                OldPassword = "!1Qqwertyuiop",
+                NewPassword = "!2Qqwertyuiop",
+                ConfirmPassword = "!2Qqwertyuiop"
+            };
+
+            // Act
+            await _userController.ChangePassword(changePasswordDto);
+            // Calling a method a second time so that the method is called by a non-existent user
+            var actionResult = await _userController.ChangePassword(changePasswordDto);
+
+            // Assert
+            var serverError = actionResult as StatusCodeResult;
+            Assert.Equal(500, serverError.StatusCode);
         }
         #endregion
     }

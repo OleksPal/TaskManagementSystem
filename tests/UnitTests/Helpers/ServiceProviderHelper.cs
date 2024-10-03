@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using Moq;
+using Moq.Protected;
 using System.Linq.Expressions;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.DTOs.User;
@@ -85,10 +86,24 @@ namespace TaskManagementSystem.UnitTests
             mgr.Object.UserValidators.Add(new UserValidator<TUser>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<TUser>());
 
-            mgr.Setup(x => x.AddToRoleAsync(It.IsAny<TUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success);
-            mgr.Setup(x => x.DeleteAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
-            mgr.Setup(x => x.CreateAsync(It.IsAny<TUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback<TUser, string>((x, y) => userList.Add(x));
-            mgr.Setup(x => x.UpdateAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
+            mgr.Setup(x => x.ChangePasswordAsync(It.IsAny<TUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            mgr.SetupSequence(x => x.FindByNameAsync(It.IsAny<string>()))
+                .ReturnsAsync(userList.FirstOrDefault())
+                .ReturnsAsync((TUser)null);
+
+            mgr.Setup(x => x.AddToRoleAsync(It.IsAny<TUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            mgr.Setup(x => x.DeleteAsync(It.IsAny<TUser>()))
+                .ReturnsAsync(IdentityResult.Success);
+
+            mgr.Setup(x => x.CreateAsync(It.IsAny<TUser>(), It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Success).Callback<TUser, string>((x, y) => userList.Add(x));
+
+            mgr.Setup(x => x.UpdateAsync(It.IsAny<TUser>()))
+                .ReturnsAsync(IdentityResult.Success);
 
             return mgr;
         }
