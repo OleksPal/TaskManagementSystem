@@ -12,7 +12,7 @@ namespace TaskManagementSystem.Data
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                UserName = "Test",
+                UserName = "TestUser",
                 Email = "test@gmail.com",                
                 PasswordHash = String.Empty,
                 CreatedAt = DateTime.Now,
@@ -22,11 +22,12 @@ namespace TaskManagementSystem.Data
             var userTask = new UserTask
             {
                 Id = Guid.NewGuid(),
-                Title = "Test",
+                Title = "TestTask",
                 Status = Status.Completed,
                 Priority = Priority.Low,
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                UserId = user.Id
             };
 
             context.Users.Add(user);

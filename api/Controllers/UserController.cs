@@ -29,11 +29,11 @@ namespace TaskManagementSystem.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (!TryValidateModel(registerDto))
                     return BadRequest(ModelState);
 
                 var newUser = new User
@@ -81,10 +81,10 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("loginWithUsername")]
         public async Task<IActionResult> LoginWithUsername([FromBody] LoginWithUsernameDto loginDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(loginDto))
                 return BadRequest(ModelState);
 
-            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == loginDto.UserName.ToLower());
+            var user = await GetUserByUsername(loginDto.UserName);
 
             if (user is null)
                 return Unauthorized("Invalid username");
@@ -111,10 +111,10 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("loginWithEmail")]
         public async Task<IActionResult> LoginWithEmail([FromBody] LoginWithEmailDto loginDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(loginDto))
                 return BadRequest(ModelState);
 
-            var user = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == loginDto.Email);
+            var user = await GetUserByEmail(loginDto.Email);
 
             if (user is null)
                 return Unauthorized("Invalid email");
@@ -142,7 +142,7 @@ namespace TaskManagementSystem.Controllers
         [HttpPost("changePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(changePasswordDto))
                 return BadRequest(ModelState);
 
             var userName = User.GetUserName();
@@ -163,6 +163,16 @@ namespace TaskManagementSystem.Controllers
             }
 
             return StatusCode(500, passwordChangeResult.Errors);
+        }
+
+        protected virtual async Task<User> GetUserByEmail(string email)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(user => user.Email == email);
+        }
+
+        protected virtual async Task<User> GetUserByUsername(string userName)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == userName.ToLower());
         }
     }
 }

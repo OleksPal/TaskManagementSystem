@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using TaskManagementSystem.Data;
 using TaskManagementSystem.Helpers;
 using TaskManagementSystem.Models;
@@ -18,7 +17,7 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<ICollection<UserTask>> GetAllAsync(Guid userId, QueryObject query)
         {
-            var tasks = _context.Tasks.AsQueryable().Where(task => task.UserId == userId || task.UserId == null);
+            var tasks = _context.Tasks.AsQueryable().Where(task => task.UserId == userId);
 
             // Filtering
             if (query.Status is not null)
@@ -51,7 +50,7 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<UserTask?> GetByIdAsync(Guid taskId, Guid userId)
         {
-            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
+            return await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && task.UserId == userId);
         }
 
         public async Task<UserTask> InsertAsync(UserTask task)
@@ -78,7 +77,7 @@ namespace TaskManagementSystem.Repositories
 
         public async Task<UserTask?> DeleteAsync(Guid taskId, Guid userId)
         {
-            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && (task.UserId == userId || task.UserId == null));
+            var task = await _context.Tasks.FirstOrDefaultAsync(task => task.Id == taskId && task.UserId == userId);
 
             if (task is null)
                 return null;
