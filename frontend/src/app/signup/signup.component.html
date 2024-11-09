@@ -4,45 +4,38 @@
                 <div class="card">
                     <div class="card-header">Register</div>
                     <div class="card-body">
-                        <form name="my-form" method="">
+                        <form method="">
                             <div class="form-group row my-2">
-                                <label for="full_name" class="col-md-4 col-form-label text-md-right">Email Address</label>
+                                <label class="col-md-4 col-form-label text-md-right">Email Address</label>
                                 <div class="col-md-6">
-                                    <input type="text" id="full_name" class="form-control" name="email-address">
+                                    <input type="text" [(ngModel)]="signupObj.email" class="form-control" name="email">
                                 </div>
                             </div>
 
                             <div class="form-group row my-2">
-                                <label for="email_address" class="col-md-4 col-form-label text-md-right">User Name</label>
+                                <label class="col-md-4 col-form-label text-md-right">User Name</label>
                                 <div class="col-md-6">
-                                    <input type="text" id="email_address" class="form-control" name="email-address">
+                                    <input type="text" [(ngModel)]="signupObj.username" class="form-control" name="username">
                                 </div>
                             </div>
 
                             <div class="form-group row my-2">
-                                <label for="user_name" class="col-md-4 col-form-label text-md-right">Phone Number</label>
+                                <label class="col-md-4 col-form-label text-md-right">Password</label>
                                 <div class="col-md-6">
-                                    <input type="text" id="user_name" class="form-control" name="username">
+                                    <input type="text" [(ngModel)]="signupObj.password" class="form-control" name="password">
                                 </div>
                             </div>
 
                             <div class="form-group row my-2">
-                                <label for="user_name" class="col-md-4 col-form-label text-md-right">Password</label>
+                                <label class="col-md-4 col-form-label text-md-right">Confirm Password</label>
                                 <div class="col-md-6">
-                                    <input type="text" id="user_name" class="form-control" name="username">
-                                </div>
-                            </div>
-
-                            <div class="form-group row my-2">
-                                <label for="user_name" class="col-md-4 col-form-label text-md-right">Confirm Password</label>
-                                <div class="col-md-6">
-                                    <input type="text" id="user_name" class="form-control" name="username">
+                                    <input type="text" class="form-control" name="confirmedPassword">
                                 </div>
                             </div>
 
                             <div class="my-4">
                                 <div class="col-md-6 offset-md-4">
-                                    <button type="submit" class="btn btn-primary px-3">
+                                    <button (click)="onRegister()" class="btn btn-primary px-3">
                                     Register
                                     </button>
                                 </div>
