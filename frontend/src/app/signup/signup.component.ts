@@ -1,31 +1,37 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { NewUserDto } from '../../models/newUserDto.model';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css'
 })
 export class SignupComponent {
-  signupObj = new SignupModel();
+  http = inject(HttpClient);
+
+  signupForm = new FormGroup({
+    username: new FormControl<string>(''),
+    email: new FormControl<string>(''),
+    password: new FormControl<string>('')
+  })
 
   onRegister(){
-    console.log('Registration was successful');
-    console.log(this.signupObj);
-  }
-}
+    const registerNewUserRequest = {
+      username: this.signupForm.value.username,
+      email: this.signupForm.value.email,
+      password: this.signupForm.value.password
+    }
 
-export class SignupModel {
-  username: string;
-  email: string;
-  password: string;
-
-  constructor(){
-    this.username = "";
-    this.email = "";
-    this.password = "";
+    return this.http.post<NewUserDto>('https://localhost:7197/api/users/register', registerNewUserRequest)
+    .subscribe({
+      next: (value) => {
+        console.log(value);
+      }
+    })
   }
 }
