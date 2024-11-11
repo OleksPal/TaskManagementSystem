@@ -29,13 +29,13 @@
                             <div class="form-group row my-2">
                                 <label class="col-md-4 col-form-label text-md-right">Confirm Password</label>
                                 <div class="col-md-6">
-                                    <input type="password" class="form-control" name="confirmedPassword">
+                                    <input type="password" formControlName="confirmedPassword" class="form-control" name="confirmedPassword">
                                 </div>
                             </div>
 
                             <div class="my-4">
                                 <div class="col-md-6 offset-md-4">
-                                    <button (click)="onRegister()" class="btn btn-primary px-3">
+                                    <button (click)="onRegister()" [disabled]="signupForm.value.password !== signupForm.value.confirmedPassword" class="btn btn-primary px-3">
                                     Register
                                     </button>
                                 </div>

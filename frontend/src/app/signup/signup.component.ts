@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, NgModel } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { NewUserDto } from '../../models/newUserDto.model';
@@ -14,10 +14,13 @@ import { NewUserDto } from '../../models/newUserDto.model';
 export class SignupComponent {
   http = inject(HttpClient);
 
+  $password = '';
+
   signupForm = new FormGroup({
     username: new FormControl<string>(''),
     email: new FormControl<string>(''),
-    password: new FormControl<string>('')
+    password: new FormControl<string>(''),
+    confirmedPassword: new FormControl<string>('')
   })
 
   onRegister(){
