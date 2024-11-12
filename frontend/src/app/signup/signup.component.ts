@@ -14,8 +14,6 @@ import { NewUserDto } from '../../models/newUserDto.model';
 export class SignupComponent {
   http = inject(HttpClient);
 
-  $password = '';
-
   signupForm = new FormGroup({
     username: new FormControl<string>(''),
     email: new FormControl<string>(''),

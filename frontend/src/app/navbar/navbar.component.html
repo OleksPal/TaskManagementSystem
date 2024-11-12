@@ -4,9 +4,14 @@
             {{title}}           
         </a>
         <div class="d-flex border-0">
-            <button class="btn me-2">Login</button>
-            <button class="btn">Register</button>
+            @if(isSignedIn){
+                <button class="btn me-2">Username</button>
+                <button class="btn">Logout</button>                
+            }
+            @else{
+                <button class="btn me-2">Login</button>
+                <button class="btn">Register</button>
+            }                
         </div>
     </div>
-</nav> 
-<app-signup></app-signup>
+</nav>   
