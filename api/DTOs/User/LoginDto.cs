@@ -2,10 +2,10 @@
 
 namespace TaskManagementSystem.DTOs.User
 {
-    public class LoginWithUsernameDto
+    public class LoginDto
     {
         [Required]
-        public string UserName { get; set; }
+        public string Login { get; set; }
 
         [Required]
         public string Password { get; set; }

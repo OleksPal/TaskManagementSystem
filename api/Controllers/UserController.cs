@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Extensions;
 using TaskManagementSystem.Models;
@@ -78,13 +77,15 @@ namespace TaskManagementSystem.Controllers
             }
         }
 
-        [HttpPost("loginWithUsername")]
-        public async Task<IActionResult> LoginWithUsername([FromBody] LoginWithUsernameDto loginDto)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!TryValidateModel(loginDto))
                 return BadRequest(ModelState);
 
-            var user = await GetUserByUsername(loginDto.UserName);
+            var user = loginDto.Login.IsValidEmail() ? 
+                await GetUserByEmail(loginDto.Login) : 
+                await GetUserByUsername(loginDto.Login);
 
             if (user is null)
                 return Unauthorized("Invalid username");
@@ -101,38 +102,8 @@ namespace TaskManagementSystem.Controllers
             return Ok(
                 new NewUserDto
                 {
-                    UserName = loginDto.UserName,
-                    Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
-                }
-            );
-        }
-
-        [HttpPost("loginWithEmail")]
-        public async Task<IActionResult> LoginWithEmail([FromBody] LoginWithEmailDto loginDto)
-        {
-            if (!TryValidateModel(loginDto))
-                return BadRequest(ModelState);
-
-            var user = await GetUserByEmail(loginDto.Email);
-
-            if (user is null)
-                return Unauthorized("Invalid email");
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-
-            if (!result.Succeeded)
-            {
-                _logger.LogWarning($"Failed login attempt from a user called {user.UserName}");
-                return Unauthorized("UserName not found and/or password is wrong");
-            }
-
-            _logger.LogInformation($"The user called {user.UserName} has successfully logged in");
-            return Ok(
-                new NewUserDto
-                {
                     UserName = user.UserName,
-                    Email = loginDto.Email,
+                    Email = user.Email,
                     Token = _tokenService.CreateToken(user)
                 }
             );

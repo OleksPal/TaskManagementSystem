@@ -176,7 +176,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task LoginWithEmail_Null_ReturnsArgumentNullException()
         {
             // Arrange
-            LoginWithEmailDto loginDto = null;
+            LoginDto loginDto = null;
 
             // Act
             Func<Task> act = () => _userController.LoginWithEmail(loginDto);
@@ -189,7 +189,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task LoginWithEmail_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            var loginDto = new LoginWithEmailDto();
+            var loginDto = new LoginDto();
 
             // Act
             var actionResult = await _userController.LoginWithEmail(loginDto);
@@ -202,7 +202,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task LoginWithEmail_ValidUser_UserExists_ReturnsNewUserDto()
         {
             // Arrange
-            var loginDto = new LoginWithEmailDto
+            var loginDto = new LoginDto
             {
                 Email = ExistingUser.Email,
                 Password = "!1Qqwertyuiop"
@@ -221,7 +221,7 @@ namespace TaskManagementSystem.UnitTests
         public async Task LoginWithEmail_ValidUser_UserDoesNotExists_ReturnsUnauthorizedResult()
         {
             // Arrange
-            var loginDto = new LoginWithEmailDto
+            var loginDto = new LoginDto
             {
                 Email = ExistingUser.Email,
                 Password = "!1Qqwertyuiop"
