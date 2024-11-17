@@ -7,7 +7,6 @@ using TaskManagementSystem.Controllers;
 using TaskManagementSystem.DTOs.User;
 using TaskManagementSystem.Models;
 using TaskManagementSystem.UnitTests.Extensions;
-using Xunit.Sdk;
 
 namespace TaskManagementSystem.UnitTests
 {
@@ -105,111 +104,45 @@ namespace TaskManagementSystem.UnitTests
         }
         #endregion
 
-        #region LoginWithUsername
+        #region Login
         [Fact]
-        public async Task LoginWithUsername_Null_ReturnsArgumentNullException()
-        {
-            // Arrange
-            LoginWithUsernameDto loginDto = null;
-
-            // Act
-            Func<Task> act = () => _userController.LoginWithUsername(loginDto);
-
-            // Assert
-            await Assert.ThrowsAsync<ArgumentNullException>(act);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
-        {
-            // Arrange
-            var loginDto = new LoginWithUsernameDto();
-
-            // Act
-            var actionResult = await _userController.LoginWithUsername(loginDto);
-
-            // Assert
-            Assert.IsType<BadRequestObjectResult>(actionResult);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_ValidUser_UserExists_ReturnsNewUserDto()
-        {
-            // Arrange
-            var loginDto = new LoginWithUsernameDto
-            {
-                UserName = ExistingUser.UserName,
-                Password = "!1Qqwertyuiop"
-            };
-
-            // Act
-            var actionResult = await _userController.LoginWithUsername(loginDto);
-
-            // Assert
-            var okResult = actionResult as ObjectResult;
-            var newUserDto = okResult.Value as NewUserDto;
-            Assert.NotNull(newUserDto);
-        }
-
-        [Fact]
-        public async Task LoginWithUsername_ValidUser_UserDoesNotExists_ReturnsNewUserDto()
-        {
-            // Arrange
-            var loginDto = new LoginWithUsernameDto
-            {
-                UserName = ExistingUser.UserName,
-                Password = "!1Qqwertyuiop"
-            };
-
-            // Act
-            await _userController.LoginWithUsername(loginDto);
-            // Calling a method a second time so that the method is called by a non-existent user
-            var actionResult = await _userController.LoginWithUsername(loginDto);
-
-            // Assert
-            Assert.IsType<UnauthorizedObjectResult>(actionResult);
-        }
-        #endregion
-
-        #region LoginWithEmail
-        [Fact]
-        public async Task LoginWithEmail_Null_ReturnsArgumentNullException()
+        public async Task Login_Null_ReturnsArgumentNullException()
         {
             // Arrange
             LoginDto loginDto = null;
 
             // Act
-            Func<Task> act = () => _userController.LoginWithEmail(loginDto);
+            Func<Task> act = () => _userController.Login(loginDto);
 
             // Assert
             await Assert.ThrowsAsync<ArgumentNullException>(act);
         }
 
         [Fact]
-        public async Task LoginWithEmail_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
+        public async Task Login_InvalidUserWithoutRequiredProperties_ReturnsBadRequestObjectResult()
         {
             // Arrange
             var loginDto = new LoginDto();
 
             // Act
-            var actionResult = await _userController.LoginWithEmail(loginDto);
+            var actionResult = await _userController.Login(loginDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(actionResult);
         }
 
         [Fact]
-        public async Task LoginWithEmail_ValidUser_UserExists_ReturnsNewUserDto()
+        public async Task Login_ValidUser_UserExists_ReturnsNewUserDto()
         {
             // Arrange
             var loginDto = new LoginDto
             {
-                Email = ExistingUser.Email,
+                Login = ExistingUser.UserName,
                 Password = "!1Qqwertyuiop"
             };
 
             // Act
-            var actionResult = await _userController.LoginWithEmail(loginDto);
+            var actionResult = await _userController.Login(loginDto);
 
             // Assert
             var okResult = actionResult as ObjectResult;
@@ -218,22 +151,41 @@ namespace TaskManagementSystem.UnitTests
         }
 
         [Fact]
-        public async Task LoginWithEmail_ValidUser_UserDoesNotExists_ReturnsUnauthorizedResult()
+        public async Task Login_ValidUserName_UserDoesNotExists_ReturnsNewUserDto()
         {
             // Arrange
             var loginDto = new LoginDto
             {
-                Email = ExistingUser.Email,
+                Login = ExistingUser.UserName,
                 Password = "!1Qqwertyuiop"
             };
 
             // Act
-            await _userController.LoginWithEmail(loginDto);
+            await _userController.Login(loginDto);
             // Calling a method a second time so that the method is called by a non-existent user
-            var actionResult = await _userController.LoginWithEmail(loginDto);
+            var actionResult = await _userController.Login(loginDto);
 
             // Assert
             Assert.IsType<UnauthorizedObjectResult>(actionResult);
+        }
+
+        [Fact]
+        public async Task Login_ValidUserEmail_UserExists_ReturnsNewUserDto()
+        {
+            // Arrange
+            var loginDto = new LoginDto
+            {
+                Login = ExistingUser.Email,
+                Password = "!1Qqwertyuiop"
+            };
+
+            // Act
+            var actionResult = await _userController.Login(loginDto);
+
+            // Assert
+            var okResult = actionResult as ObjectResult;
+            var newUserDto = okResult.Value as NewUserDto;
+            Assert.NotNull(newUserDto);
         }
         #endregion
 
